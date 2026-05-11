@@ -1,0 +1,273 @@
+body {
+    background: #f5f7fa;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #222;
+}
+
+.container {
+    max-width: 500px;
+    margin: 40px 0 40px 200px; 
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+}
+h1 {
+    color: #2a5d9f;
+    margin-bottom: 24px;
+}
+label {
+    display: block;
+    margin-top: 16px;
+    color: #2a5d9f;
+    font-weight: 500;
+}
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #b3c2d6;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #f0f4fa;
+}
+button {
+    margin-top: 24px;
+    background: #2a5d9f;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #1d4170;
+}
+#cross_team_fields {
+    background: #eaf1fb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+}
+
+/* Cross Team Table Styles */
+.cross-team-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cross-team-table th,
+.cross-team-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #e0e6ed;
+}
+
+.cross-team-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cross-team-table td {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.cross-team-table .team-name {
+    font-weight: 600;
+    color: #2a5d9f;
+    background: #f0f4fa;
+}
+
+.cross-team-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.cross-team-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Cross Team Details Sections */
+.cross-team-title {
+    color: #2a5d9f;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 20px 0 15px 0;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f0f4fa 0%, #e8f2ff 100%);
+    border-left: 4px solid #2a5d9f;
+    border-radius: 4px;
+}
+
+.cross-team-details-section {
+    background: #fafbfc;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.cross-team-details-section .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.cross-team-details-section .form-group {
+    margin-bottom: 0;
+}
+
+.cross-team-field {
+    background: white;
+    border: 1px solid #dde4ea;
+    border-radius: 4px;
+    padding: 8px 12px;
+    min-height: 20px;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.cross-team-field:empty::before {
+    content: "Not specified";
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* Checkbox Group Styling */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-top: -39px;
+    margin-left: 38%;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #495057;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;
+    transform: scale(1.1);
+}
+
+.checkbox-label:hover {
+    color: #2a5d9f;
+}
+
+/* Responsive adjustments for cross team sections */
+@media (max-width: 768px) {
+    .cross-team-details-section .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .cross-team-title {
+        font-size: 1rem;
+        margin: 15px 0 10px 0;
+        padding: 6px 10px;
+    }
+}
+
+/* Radio button styling for inline display */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.radio-option input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+.radio-option label {
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+/* Cross Team Table Styling */
+.cross-team-table-container {
+    margin-top: 10px;
+}
+
+.cross-team-table {
+    border-collapse: collapse;
+    background: white;
+    margin-left: -21%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cross-team-table th {
+    background: #525283;
+    color: white;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.cross-team-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.cross-team-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.cross-team-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.table-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.cross-team-table td:first-child {
+    background: #f1f5f9;
+    font-weight: 420;
+    color: #334155;
+}

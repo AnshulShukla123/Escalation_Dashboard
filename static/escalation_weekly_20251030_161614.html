@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weekly Escalation Video Report</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .slide {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .slide.active {
+            display: flex;
+        }
+        
+        .slide h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .slide h2 {
+            font-size: 2rem;
+            color: #93c5fd;
+            margin-bottom: 50px;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .stats {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        
+        .stat-total { color: white; }
+        .stat-open { color: #10b981; }
+        .stat-closed { color: #ef4444; }
+        
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #3b82f6;
+            transition: width 0.1s linear;
+            z-index: 1001;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 50px;
+            max-width: 800px;
+        }
+        
+        .summary-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out 1.5s both;
+        }
+        
+        .summary-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .summary-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <h1>Weekly Escalation Report</h1>
+        <h2>October 27, 2025 - November 02, 2025</h2>
+    </div>
+    
+    <!-- Slide 2: Statistics -->
+    <div class="slide">
+        <h1>Escalation Overview</h1>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-number stat-total">1</div>
+                <div class="summary-label">Total Cases</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number stat-open">1</div>
+                <div class="summary-label">Open Cases</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number stat-closed">0</div>
+                <div class="summary-label">Closed Cases</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 3: Details -->
+    <div class="slide">
+        <h1>Case Details</h1>
+        <div style="text-align: left; max-width: 800px; font-size: 1.5rem; line-height: 2;">
+
+            <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                <strong>#10</strong> - vhgv<br>
+                <span style="color: #10b981;">Status: OPEN</span> | 
+                <span>Priority: Medium</span>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Slide 4: Thank You -->
+    <div class="slide">
+        <h1>End of Report</h1>
+        <h2>Generated on October 30, 2025 at 04:16 PM</h2>
+        <div style="font-size: 1.5rem; margin-top: 40px; opacity: 0.8;">
+            Thank you for viewing this escalation report.
+        </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const totalDuration = 10000; // 10 seconds total
+        const slideDuration = totalDuration / totalSlides; // Equal time per slide
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            if (index < totalSlides) {
+                slides[index].classList.add('active');
+            }
+        }
+        
+        function nextSlide() {
+            currentSlideIndex++;
+            if (currentSlideIndex < totalSlides) {
+                showSlide(currentSlideIndex);
+            } else {
+                // Video ended - could loop or show end screen
+                currentSlideIndex = 0;
+                showSlide(currentSlideIndex);
+            }
+        }
+        
+        // Auto-advance slides
+        setInterval(nextSlide, slideDuration);
+        
+        // Update progress bar smoothly
+        let startTime = Date.now();
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min((elapsed / totalDuration) * 100, 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Reset when complete
+            if (progress >= 100) {
+                setTimeout(() => {
+                    startTime = Date.now();
+                }, 100);
+            }
+            
+            requestAnimationFrame(updateProgress);
+        }
+        
+        // Start the video
+        showSlide(0);
+        updateProgress();
+    </script>
+</body>
+</html>
