@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { padding: 8px; width: 300px; }
+        button { padding: 10px 20px; margin: 10px 5px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Form Submission Debug Test</h1>
+    
+    <div class="debug">
+        <h3>Debug Information</h3>
+        <div id="debug-output">Click buttons or submit form to see debug info...</div>
+    </div>
+    
+    <form id="test-form" action="/submit" method="POST">
+        <div class="form-group">
+            <label>Escalation ID:</label>
+            <input type="text" name="escalation_id" value="TEST-123" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Customer:</label>
+            <input type="text" name="customer" value="Test Customer" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Problem Title:</label>
+            <input type="text" name="problem_title" value="Test Problem" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Engineer:</label>
+            <input type="text" name="engineer" value="testuser" required>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" id="submit-btn">Submit Form</button>
+            <button type="button" id="test-btn">Test Button Click</button>
+        </div>
+    </form>
+
+    <script>
+        const debugOutput = document.getElementById('debug-output');
+        
+        function addDebugMessage(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugOutput.innerHTML += `<br>[${timestamp}] ${message}`;
+        }
+        
+        // Test button click
+        document.getElementById('test-btn').addEventListener('click', function() {
+            addDebugMessage('Test button clicked - JavaScript is working!');
+        });
+        
+        // Form submit event
+        document.getElementById('test-form').addEventListener('submit', function(e) {
+            addDebugMessage('Form submit event triggered');
+            addDebugMessage('Form action: ' + this.action);
+            addDebugMessage('Form method: ' + this.method);
+            
+            // Log form data
+            const formData = new FormData(this);
+            addDebugMessage('Form data:');
+            for (let [key, value] of formData.entries()) {
+                addDebugMessage(`  ${key}: ${value}`);
+            }
+            
+            addDebugMessage('Form will be submitted in 2 seconds...');
+            
+            // Don't prevent submission, just add delay to see the debug info
+        });
+        
+        // Submit button click
+        document.getElementById('submit-btn').addEventListener('click', function(e) {
+            addDebugMessage('Submit button clicked');
+        });
+        
+        addDebugMessage('Page loaded and JavaScript initialized');
+    </script>
+</body>
+</html>

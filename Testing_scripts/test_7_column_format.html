@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webex Table Format Test - 7 Columns</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        @media (min-width: 768px) {
+            body {
+                margin: 50px auto;
+                max-width: 1400px;
+            }
+        }
+        
+        .preview-box {
+            border: 2px solid #0073e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #1a202c;
+            width: 100%;
+            box-sizing: border-box;
+            color: white;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-table {
+                font-size: 12px;
+            }
+            
+            .preview-box {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            body {
+                margin: 10px;
+                padding: 10px;
+            }
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 UPDATED Single Row Table Format (4 Columns)</h1>
+    
+    <div class="success">
+        <h3>✅ Format Updated Successfully!</h3>
+        <p><strong>New Format:</strong> Single row with 4 columns only</p>
+        <p><strong>Fields:</strong> Customer, Version, Bug ID, Component</p>
+        <p><strong>Removed:</strong> Severity, DE Mgr, Primary PoC</p>
+        <p><strong>Cache-bust timestamp:</strong> <?php echo time(); ?>2025-11-13-<?php echo rand(1000,9999); ?></p>
+    </div>
+    
+    <h3>🎯 NEW Single Row Table Format:</h3>
+    <div class="preview-box">
+        <h4 style="color: #63b3ed; margin: 0 0 15px 0;">📊 Escalation Update - #1</h4>
+        
+        <div style="margin: 15px 0;">
+            <strong>📊 Single Row Format (4 columns only):</strong>
+            
+            <!-- Single Row with 4 fields only -->
+            <table class="preview-table">
+                <tbody>
+                    <!-- Single Row: 4 fields -->
+                    <tr style="background: #4a5568; color: white;">
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Customer</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Version</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Bug ID</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Component</th>
+                    </tr>
+                    <tr style="background: #2d3748; color: white;">
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Telstra5</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">17.12.44</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">CSCwp03242</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">BYOD Client Join</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin: 15px 0; color: #e2e8f0;">
+            <strong>📝 Notes:</strong> Deployment change: from non-SDA to SDA
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <button style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                📋 View Escalation
+            </button>
+        </div>
+    </div>
+
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
+        <h4>🎯 This is the CLEAN Single Row format:</h4>
+        <ul>
+            <li>✅ Single table with 1 row (header + data)</li>
+            <li>✅ Only 4 essential fields: Customer, Version, Bug ID, Component</li>
+            <li>✅ Removed: Severity, DE Mgr, Primary PoC fields</li>
+            <li>✅ Clean, focused layout</li>
+            <li>✅ Matches your attachment exactly</li>
+            <li>✅ Dark theme with professional styling</li>
+            <li>✅ Responsive design for mobile and desktop</li>
+        </ul>
+        <p><strong>If you're still seeing the old format, try:</strong></p>
+        <ol>
+            <li>Hard refresh: Ctrl+Shift+R</li>
+            <li>Clear browser cache</li>
+            <li>Open in incognito/private window</li>
+        </ol>
+    </div>
+    
+    <script>
+        // Force page refresh to avoid cache issues
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+            location.reload(true);
+        }
+        
+        console.log('4x2 grid table format loaded successfully!');
+        console.log('Timestamp: ' + new Date().toISOString());
+    </script>
+</body>
+</html>

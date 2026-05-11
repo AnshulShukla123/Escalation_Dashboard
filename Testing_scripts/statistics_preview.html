@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Statistics Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chart-area {
+            width: 400px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #667eea;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Escalation Statistics Preview</h1>
+    
+    <div class="chart-container">
+        <h2>Top Contributors - Last Month</h2>
+        <div class="chart-area">
+            <canvas id="contributors1MChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Top Contributors - Last 3 Months</h2>
+        <div class="chart-area">
+            <canvas id="contributors3MChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Sample data from our test
+        const contributors1MData = {
+            labels: ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Wilson'],
+            data: [1, 1, 1, 1]
+        };
+        
+        const contributors3MData = {
+            labels: ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Wilson', 'Charlie Brown'],
+            data: [3, 2, 2, 1, 1]
+        };
+        
+        const contributorColors = [
+            '#667eea', // Primary purple-blue
+            '#764ba2', // Secondary purple
+            '#4caf50', // Green
+            '#ff6f61', // Coral
+            '#2196f3'  // Blue
+        ];
+        
+        // Contributors 1 Month Bar Chart
+        const ctx1M = document.getElementById('contributors1MChart').getContext('2d');
+        new Chart(ctx1M, {
+            type: 'bar',
+            data: {
+                labels: contributors1MData.labels,
+                datasets: [{
+                    label: 'Escalations',
+                    data: contributors1MData.data,
+                    backgroundColor: contributorColors.slice(0, contributors1MData.labels.length),
+                    borderColor: contributorColors.slice(0, contributors1MData.labels.length),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Escalations in Last 30 Days'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Contributors 3 Months Bar Chart
+        const ctx3M = document.getElementById('contributors3MChart').getContext('2d');
+        new Chart(ctx3M, {
+            type: 'bar',
+            data: {
+                labels: contributors3MData.labels,
+                datasets: [{
+                    label: 'Escalations',
+                    data: contributors3MData.data,
+                    backgroundColor: contributorColors.slice(0, contributors3MData.labels.length),
+                    borderColor: contributorColors.slice(0, contributors3MData.labels.length),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Escalations in Last 90 Days'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

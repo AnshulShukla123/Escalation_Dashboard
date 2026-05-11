@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webex Chat Width Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        @media (min-width: 768px) {
+            body {
+                margin: 50px auto;
+                max-width: 1200px;
+            }
+        }
+        
+        .preview-box {
+            border: 2px solid #0073e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #1a202c;
+            width: 100%;
+            box-sizing: border-box;
+            color: white;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            overflow-x: auto;
+            display: block;
+            white-space: nowrap;
+        }
+        
+        .preview-table thead,
+        .preview-table tbody,
+        .preview-table tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-table {
+                font-size: 12px;
+            }
+            
+            .preview-box {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            body {
+                margin: 10px;
+                padding: 10px;
+            }
+        }
+        
+        .test-info {
+            background: #e8f4f8;
+            border: 1px solid #0073e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📱💻 Webex Chat Width Test</h1>
+    
+    <div class="test-info">
+        <h3>Testing Responsive Behavior:</h3>
+        <ul>
+            <li><strong>Mobile (< 768px):</strong> Full width with smaller margins</li>
+            <li><strong>Tablet/Laptop (≥ 768px):</strong> Max width 1200px, centered</li>
+            <li><strong>Desktop:</strong> Full width up to 1200px maximum</li>
+        </ul>
+        <p><strong>Current window width:</strong> <span id="windowWidth"></span>px</p>
+    </div>
+    
+    <h3>Preview: Webex Chat Grey Box</h3>
+    <div class="preview-box">
+        <h4 style="color: #63b3ed; margin: 0 0 15px 0;">📊 Escalation Update - #1</h4>
+        
+        <div style="margin: 15px 0;">
+            <strong>📊 Native Table Format:</strong>
+            <table class="preview-table">
+                <tbody>
+                    <tr style="background: #4a5568; color: white;">
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Customer</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Version</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Bug ID</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Component</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Severity</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">DE Mgr</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Primary PoC</th>
+                    </tr>
+                    <tr style="background: #2d3748; color: white;">
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Toyota4</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">17.12.5</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">CSCwr46982</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Client Join in SDA</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">CAP</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Srihari</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin: 15px 0; color: #e2e8f0;">
+            <strong>📝 Notes:</strong> Deployment change: from non-SDA to SDA
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <button style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                📋 View Escalation
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function updateWindowWidth() {
+            document.getElementById('windowWidth').textContent = window.innerWidth;
+        }
+        
+        updateWindowWidth();
+        window.addEventListener('resize', updateWindowWidth);
+    </script>
+</body>
+</html>

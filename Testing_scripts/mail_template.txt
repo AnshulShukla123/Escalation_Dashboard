@@ -1,0 +1,6 @@
+Hello {engineer},
+
+The escalation {id} opened for {customer} on {reported_on} is still open. Request to update the bug with latest status.
+
+Regards,
+Escalation Tracker
