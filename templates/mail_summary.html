@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Escalation Summary</title>
+    <style>
+    body { font-family: Arial, sans-serif; background: #f8f9ff; color: #333; margin: 0; padding: 0; }
+        h2 { color: #667eea; }
+        .summary-section { margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+        th, td { border: 1px solid #e8ebff; padding: 8px; text-align: center; font-size: 0.95rem; }
+        th { background: #667eea; color: #fff; font-weight: 600; }
+        .category-table th, .category-table td { text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Weekly Escalation Summary</h2><br>
+    <div class="summary-section">
+        <strong>Open Issues (Last 1 Week):</strong> {{ open_count }}<br>
+        <br>
+        <strong>Closed Issues (Last 1 Week):</strong> {{ closed_count }}<br>
+        <br>
+        {% set pa_counts = {'Dev': 0, 'Esc': 0, 'TAC': 0, 'Test': 0} %}
+        {% for item in open_items %}
+            {% set pa = item.pending_action if item.pending_action else 'Dev' %}
+            {% if pa in pa_counts %}
+                {% set _ = pa_counts.update({pa: pa_counts[pa] + 1}) %}
+            {% endif %}
+        {% endfor %}
+        <strong>Pending Actions:</strong>
+        {% set parts = [] %}
+        {% for cat, count in pa_counts.items() %}
+            {% if count > 0 %}
+                {% set _ = parts.append(cat ~ ' - ' ~ count) %}
+            {% endif %}
+        {% endfor %}
+        {{ parts | join(', ') }}<br>
+    </div>
+    <div class="summary-section">
+        <strong>Closed Issues by Category (Last 1 Week):</strong>
+        <table class="category-table" style="width:30%; min-width:200px;">
+         <!--<table class="category-table" style="width:40%; min-width:240px;">-->
+            <tr><th>Category</th><th>Count</th></tr>
+            {% for cat, count in closed_category_summary.items() %}
+            <tr><td>{{ cat }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="summary-section">
+        <strong>Closed Issues Details</strong>
+    <table style="width:50%; min-width:300px;">
+        <div style="background-color: #f7f8fc; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 32px 24px 0px 24px; margin: 0 auto; max-width: 900px; min-width: 600px;">
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Issue</th>
+            <th>Manager</th>
+            <th>Status</th>
+        </tr>
+        {% for item in closed_items %}
+            <tr>
+                <td>
+                    <a href="http://{{ host }}/details/{{ item.id }}" target="_blank">{{ item.id }}</a>
+                </td>
+                <td>
+                    {% if item.customer %}
+                        {{ item.customer }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>{{ item.functionality if item.functionality else 'N/A' }}</td>
+                <td>{{ item.dedt_manager if item.dedt_manager else 'N/A' }}</td>
+                <td>{{ item.remarks if item.remarks else 'N/A' }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+    <div class="summary-section">
+        <strong>Open Issues Details</strong>
+    <table style="width:50%; min-width:300px;">
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Issue</th>
+            <th>Manager</th>
+            <th>Status</th>
+        </tr>
+        {% for item in open_items %}
+        <tr>
+            <td>
+                <a href="http://{{ host }}/details/{{ item.id }}" target="_blank">{{ item.id }}</a>
+            </td>
+            <td>
+                {% if item.customer %}
+                    {{ item.customer }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ item.functionality if item.functionality else 'N/A' }}</td>
+            <td>{{ item.dedt_manager if item.dedt_manager else 'N/A' }}</td>
+            <td>
+                {% if item.remarks %}
+                    {% set last_remark = item.remarks.split('\n')[-1] %}
+                    {% if last_remark.startswith('[') and ']' in last_remark %}
+                        {% set date_stamp = last_remark[1:11] %}
+                        <span>{{ date_stamp }}</span> <b>-</b> {{ last_remark.split('] ', 1)[-1] }}
+                    {% else %}
+                        {{ last_remark }}
+                    {% endif %}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+<br>
+<div style="margin-top:32px; font-size:1rem; color:#444; text-align:left; background:#fff; padding:8px 0;">
+    Regards,<br>
+    Escalation Tracker team
+</div>
+</div>
+</body>
+</html>

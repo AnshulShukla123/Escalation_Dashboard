@@ -1,0 +1,23 @@
+            <label for="cross_team" style="font-weight: 600; color: #667eea; margin-bottom: 8px; text-align: left; font-size: 0.9rem;">Cross Dependent Team</label>
+            <select id="cross_team" name="cross_team" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e8ebff; background: #fff; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <option value="" {% if cross_team=='' or not cross_team %}selected{% endif %}>All</option>
+                {% set cross_teams = items | map(attribute='cross_team') | list %}
+                {% for ct in cross_teams | unique %}
+                <option value="{{ ct }}" {% if cross_team==ct %}selected{% endif %}>{{ ct }}</option>
+                {% endfor %}
+            </select>
+            <label for="closing_reason" style="font-weight: 600; color: #667eea; margin-bottom: 8px; text-align: left; font-size: 0.9rem;">Closing Reason</label>
+            <select id="closing_reason" name="closing_reason" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e8ebff; background: #fff; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <option value="" {% if not closing_reason %}selected{% endif %}>All</option>
+                <option value="Bug" {% if closing_reason=='Bug' or closing_reason=='Bug issue' %}selected{% endif %}>Bug</option>
+                <option value="Network issue" {% if closing_reason=='Network issue' %}selected{% endif %}>Network issue</option>
+                <option value="Config issue" {% if closing_reason=='Config issue' %}selected{% endif %}>Config issue</option>
+                <option value="Infra issue" {% if closing_reason=='Infra issue' %}selected{% endif %}>Infra issue</option>
+                <option value="Serviceability issue" {% if closing_reason=='Serviceability issue' %}selected{% endif %}>Serviceability issue</option>
+            </select>
+            <label for="cap_status" style="font-weight: 600; color: #667eea; margin-bottom: 8px; text-align: left; font-size: 0.9rem;">CAP Status</label>
+            <select id="cap_status" name="cap_status" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e8ebff; background: #fff; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <option value="" {% if not cap_status %}selected{% endif %}>All</option>
+                <option value="CAP" {% if cap_status=='CAP' %}selected{% endif %}>CAP</option>
+                <option value="pre-CAP" {% if cap_status=='pre-CAP' %}selected{% endif %}>pre-CAP</option>
+            </select>

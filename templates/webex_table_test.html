@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webex Table Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 20px;
+            padding: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            body {
+                margin: 50px auto;
+                max-width: 1200px;
+            }
+        }
+        .button {
+            background-color: #0073e6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #005bb5;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .sample-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .sample-table th, .sample-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .sample-table th {
+            background-color: #f2f2f2;
+        }
+        
+        .preview-box {
+            border: 2px solid #0073e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #1a202c;
+            width: 100%;
+            box-sizing: border-box;
+            color: white;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            overflow-x: auto;
+            display: block;
+            white-space: nowrap;
+        }
+        
+        .preview-table thead,
+        .preview-table tbody,
+        .preview-table tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-table {
+                font-size: 12px;
+            }
+            
+            .preview-box {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            body {
+                margin: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Webex Table Card Sender</h1>
+    
+    <p>This tool sends escalation details using native Webex table cards for professional presentation.</p>
+    
+    <div>
+        <label for="escalation-id">Enter Escalation ID:</label>
+        <input type="number" id="escalation-id" placeholder="e.g., 1" min="1">
+        <button class="button" onclick="sendToWebex()">📤 Send Table Card to Webex</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <h3>� New: Native Table Format</h3>
+    <p>Your Webex message will be displayed as a structured table card:</p>
+    
+    <div class="preview-box">
+        <h4 style="color: #63b3ed; margin: 0 0 15px 0;">📊 Escalation Update - #1</h4>
+        
+        <div style="margin: 15px 0;">
+            <strong>📊 Native Table Format (7 columns, 2 rows):</strong>
+            <table class="preview-table">
+                <tbody>
+                    <tr style="background: #4a5568; color: white;">
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Customer</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Version</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Bug ID</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Component</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Severity</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">DE Mgr</th>
+                        <th style="border: 1px solid #2d3748; padding: 12px; text-align: center; font-weight: 600;">Primary PoC</th>
+                    </tr>
+                    <tr style="background: #2d3748; color: white;">
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Toyota4</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">17.12.5</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">CSCwr46982</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Client Join in SDA</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">CAP</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">Srihari</td>
+                        <td style="border: 1px solid #4a5568; padding: 12px; text-align: center;">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin: 15px 0; color: #e2e8f0;">
+            <strong>📝 Notes:</strong> Deployment change: from non-SDA to SDA
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <button style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                📋 View Escalation
+            </button>
+        </div>
+    </div>
+    
+    <h3>✨ Native Table Benefits</h3>
+    <ul>
+        <li>📊 <strong>Structured Data:</strong> Native Webex table components for clean presentation</li>
+        <li>🎯 <strong>Column Alignment:</strong> Defined widths ensure consistent data layout</li>
+        <li>📱 <strong>Mobile-Responsive:</strong> Tables adapt perfectly to mobile devices</li>
+        <li>🔗 <strong>Interactive Elements:</strong> Action buttons for quick escalation access</li>
+        <li>⚡ <strong>Fast Rendering:</strong> Simplified card structure for better performance</li>
+        <li>🚀 <strong>Professional Look:</strong> Business-grade table appearance in Webex Teams</li>
+    </ul>
+    
+    <h3>🔄 Migration from ASCII Tables</h3>
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
+        <h4>Previous Format (ASCII Tables):</h4>
+        <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">
+╭─────────────────┬──────────────────┬──────────────────┬──────────────────╮
+│ Escalation ID   │ Customer         │ Version          │ Bug ID           │
+├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
+│ #1              │ Toyota4          │ 17.12.5          │ CSCwr46982       │
+╰─────────────────┴──────────────────┴──────────────────┴──────────────────╯</pre>
+        
+        <p><strong>Limitations:</strong></p>
+        <ul>
+            <li>❌ Fixed-width fonts only</li>
+            <li>❌ No colors or visual hierarchy</li>
+            <li>❌ Not mobile-friendly</li>
+            <li>❌ No interactive elements</li>
+        </ul>
+    </div>
+    
+    <div style="background: #d1f2eb; border: 1px solid #a7f3d0; border-radius: 4px; padding: 15px; margin: 20px 0;">
+        <h4>✅ New Format (Adaptive Cards) - See Preview Above</h4>
+        <p><strong>Improvements:</strong></p>
+        <ul>
+            <li>✅ Rich visual formatting with icons</li>
+            <li>✅ Professional color scheme</li>
+            <li>✅ Mobile-responsive design</li>
+            <li>✅ Interactive buttons and links</li>
+            <li>✅ Better information hierarchy</li>
+        </ul>
+    </div>
+
+    <script>
+        function sendToWebex() {
+            const escalationId = document.getElementById('escalation-id').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!escalationId) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter an escalation ID</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div>⏳ Sending Table Card to Webex...</div>';
+            
+            fetch(`/send_table_to_webex/${escalationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ ${data.success}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${data.error}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Escalation - Escalation Hub</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Prevent scrollbars on any element */
+        *, *::before, *::after {
+            overflow: visible;
+        }
+        
+        html, body {
+            overflow: hidden !important; /* Remove all scrollbars - force override */
+            height: 100vh; /* Set fixed viewport height */
+            max-height: 100vh; /* Ensure it doesn't exceed viewport */
+        }
+        
+        /* Hide scrollbars completely */
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        html, body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin: 20px 0;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            position: relative;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #cce7ff 0%, #b3d9ff 100%);
+            color: #004085;
+            border-left: 4px solid #007bff;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .close-alert {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .close-alert:hover {
+            opacity: 1;
+        }
+
+        /* Dark Sidebar */
+        .sidebar {
+            width: 200px;
+            background: linear-gradient(135deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-title {
+            color: #f39c12;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: -5px;
+            margin-left: 3px;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+            flex: 1;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+
+        }
+
+
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: #f39c12;
+            transform: translateX(3px);
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        .nav-item.active {
+            background: rgba(243, 156, 18, 0.2);
+            border-left-color: #f39c12;
+            color: #f39c12;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: scale(1.1) rotate(3deg);
+        }
+        
+        .top-header {
+            background: linear-gradient(90deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            padding: 0 30px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 41%;
+        }
+        
+        .header-title h1 {
+            color: #f39c12;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+            margin-right: 30px;
+        }
+        
+        /* User Profile Dropdown */
+        .user-profile {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #4285f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .dropdown-arrow {
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .user-profile.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        
+        .user-profile.active .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .main-content {
+            margin-left: 200px;
+            background: #f5f7fa;
+            height: 100vh; /* Set full viewport height */
+            max-height: 100vh; /* Ensure it doesn't exceed viewport */
+            overflow: hidden !important; /* Force remove scrollbars from main content */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow: hidden; /* Completely remove scrolling for now */
+            padding: 20px;
+            max-height: calc(100vh - 60px); /* Account for header height */
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            color: white;
+            padding: 0 30px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-open { background: #e74c3c; color: white; }
+        .status-inprogress { background: #f39c12; color: white; }
+        .status-pending { background: #9b59b6; color: white; }
+        .status-closed { background: #27ae60; color: white; }
+        
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .form-container:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            justify-content: flex-start;
+            margin-top: -19px;
+            padding: 0;
+        }
+        
+        .tab-header-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px;
+            width: 100%;
+        }
+
+        .tab-button {
+            width: auto;
+            min-width: 140px;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-button:hover {
+            color: #495057;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .tab-button.active {
+            color: #4285f4;
+            background: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #4285f4;
+        }
+        
+        /* Hidden tabs */
+        .tab-button.hidden-tab {
+            display: none;
+        }
+        
+        /* Navigation arrows */
+        .nav-arrow {
+            color: #000000;
+            font-weight: bold;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            width: auto;
+            height: auto;
+            font-family: Arial, sans-serif;
+            min-width: 40px;
+            margin-top: 23px;
+        }
+        
+        .nav-arrow:hover {
+            color: #333333;
+            background: transparent;
+            transform: scale(1.2) translateX(3px);
+            box-shadow: none;
+        }
+        
+        .nav-arrow:active {
+            transform: scale(1.0) translateX(2px);
+        }
+        
+        .nav-arrow.hidden-arrow {
+            display: none;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            min-height: 400px;
+            border-radius: 0 0 16px 16px; /* Rounded bottom corners */
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* CRITICAL: Force buttons to be visible in Update & Review tab */
+        #update-review.tab-content.active .form-buttons {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin: 20px auto !important;
+            gap: 20px !important;
+            background: white !important;
+            padding: 20px !important;
+            width: 100% !important;
+            position: relative !important;
+            z-index: 9999 !important;
+        }
+
+        #update-review.tab-content.active .form-buttons .btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            margin: 0 !important;
+            padding: 12px 24px !important;
+            text-decoration: none !important;
+            border: 2px solid #ccc !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            min-width: 120px !important;
+            position: relative !important;
+            z-index: 10000 !important;
+        }
+
+        #update-review.tab-content.active .form-buttons .btn-primary {
+            background-color: darkblue;
+            color: white !important;
+            
+        }
+
+        #update-review.tab-content.active .form-buttons .btn-secondary {
+            background-color: #6c757d !important;
+            color: white !important;
+            border-color: #6c757d !important;
+        }
+
+        /* Ensure Update & Review tab displays properly */
+        #update-review.tab-content {
+            display: none;
+        }
+
+        #update-review.tab-content.active {
+            display: block !important;
+            background: white;
+            padding: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+        }
+        
+        /* Specific layout for escalation details form */
+        #escalation-details .form-grid {
+            gap: 4px; /* Further reduced gap for very tight spacing */
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* 3 columns for first row */
+            grid-template-areas: 
+                "sr bems upgrade"
+                "symptom nextstep nextstep"
+                "remarks remarks remarks";
+        }
+        
+        /* Assign grid areas to specific form fields in escalation details */
+        #escalation-details .form-group:nth-child(1) { grid-area: sr; }
+        #escalation-details .form-group:nth-child(2) { grid-area: bems; }
+        #escalation-details .form-group:nth-child(3) { grid-area: upgrade; }
+        #escalation-details .form-group:nth-child(4) { grid-area: symptom; }
+        #escalation-details .form-group:nth-child(5) { grid-area: nextstep; }
+        #escalation-details .form-group:nth-child(6) { grid-area: remarks; }
+        
+        /* Override form-group styles for escalation details */
+        #escalation-details .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            margin-left: 30px; /* Match submit form margin */
+            width: 100%; /* Override the 40% width */
+            position: relative;
+        }
+
+        #escalation-details .form-label {
+            min-width: auto; /* Remove fixed width for escalation tab labels */
+        }
+            gap: 8px;
+            width: auto;
+            margin-left: 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 40%;
+            margin-left: 30px;
+            
+            position: relative;
+        }
+        .form-group2 {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 40%;
+            margin-left: -275px;
+            position: relative;
+        }
+
+
+
+        .form-group2:nth-child(1) { animation-delay: 0.15s; }
+        .form-group2:nth-child(2) { animation-delay: 0.25s; }
+        .form-group2:nth-child(3) { animation-delay: 0.35s; }
+        .form-group2:nth-child(4) { animation-delay: 0.45s; }
+        .form-group2:nth-child(5) { animation-delay: 0.55s; }
+        .form-group2:nth-child(6) { animation-delay: 0.65s; }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.85rem;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+            width: 360px;
+            position: relative;
+            transform: translateY(0);
+        }
+
+        .form-input:hover, .form-select:hover, .form-textarea:hover {
+            border-color: #4285f4;
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1), 0 4px 12px rgba(66, 133, 244, 0.15);
+            transform: translateY(-2px);
+            background: #fafafa;
+        }
+
+        .form-textarea {
+            min-height: 52px;
+            resize: vertical;
+            width: 360px; /* Match the same width as form-input */
+        }
+        
+        /* Increased size for remarks textarea */
+        textarea[name="remarks"], textarea[name="new_remark"] {
+            min-height: 120px;
+            width: 40%;
+        }
+        
+        /* Styling for remarks history */
+        .remarks-history-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: white;
+            border-left: 3px solid #007bff;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .remarks-timestamp {
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .remarks-content {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Styling for remark edit/delete buttons */
+        .remark-actions {
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+        
+        .remark-item:hover .remark-actions {
+            opacity: 1;
+        }
+        
+        .remark-item {
+            min-height: 50px; /* Ensure consistent minimum height */
+        }
+        
+        .edit-remark-btn:hover {
+            color: #0056b3 !important;
+            transform: scale(1.15);
+            transition: all 0.2s ease;
+            background-color: rgba(0, 123, 255, 0.1) !important;
+            border-radius: 3px !important;
+        }
+        
+        .delete-remark-btn:hover {
+            color: #c82333 !important;
+            transform: scale(1.15);
+            transition: all 0.2s ease;
+            background-color: rgba(220, 53, 69, 0.1) !important;
+            border-radius: 3px !important;
+        }
+        
+        .edit-remark-btn, .delete-remark-btn {
+            transition: all 0.2s ease;
+        }
+
+        /* Form buttons - only visible in Update & Review tab */
+        .form-buttons {
+            padding: 10px 30px; /* Reduced padding from 20px to 10px */
+            background: none;
+            border-top: none;
+            display: flex;
+            gap: 15px;
+            margin-left: 40%;
+            margin-top: -25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, darkblue 0%, #1e3c72 100%);
+            color: white;
+            height: 33px;
+            margin-top: 27px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, black 0%, #2c5aa0 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-top: 27px;
+            height: 33px;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+
+        /* Specific styling for buttons in Update & Review tab */
+        #update-review .form-buttons {
+            background: transparent;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 0;
+            position: relative;
+            z-index: 100;
+            display: flex !important;
+            justify-content: flex-start !important;
+            gap: 15px !important;
+            margin-left: 40% !important;
+            margin-top: -25px !important;
+        }
+
+        #update-review .form-buttons .btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .sidebar-title {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-navigation {
+                flex-wrap: wrap;
+            }
+            
+            .tab-header-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .tab-button {
+                min-width: 120px;
+                text-align: left;
+                padding: 15px 20px;
+                border-radius: 8px;
+            }
+            
+            .tab-button.hidden-tab {
+                display: none;
+            }
+            
+            .nav-arrow {
+                align-self: center;
+                margin: 10px 0;
+            }
+            
+            .nav-arrow.hidden-arrow {
+                display: none;
+            }
+        }
+
+        /* Modal/Popup Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .modal-body {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            margin-left: 18%;
+        }
+
+        .modal-btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .modal-btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        /* CSS Grid layout for escalation details */
+        .escalation-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-areas: 
+                "sr bems upgrade"
+                "symptom nextstep nextstep"
+                "remarks remarks remarks";
+            gap: 4px;
+        }
+
+        .form-group3 {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .form-group3:nth-child(1) { grid-area: sr; }
+        .form-group3:nth-child(2) { grid-area: bems; }
+        .form-group3:nth-child(3) { grid-area: upgrade; }
+        .form-group3:nth-child(4) { grid-area: symptom; }
+        .form-group3:nth-child(5) { grid-area: nextstep; }
+        .form-group3:nth-child(6) { grid-area: remarks; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Escalation Hub</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/submit_form" class="nav-item">
+                <span class="nav-icon">✚</span>
+                New Escalation
+            </a>
+            <a href="/dashboard" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="/statistics" class="nav-item">
+                <span class="nav-icon">📈</span>
+                Statistics
+            </a>
+            <a href="/ai_summary" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                AI Summary
+            </a>
+            <a href="/custom_query" class="nav-item">
+                <span class="nav-icon">🔍</span>
+                Custom Query
+            </a>
+            <a href="/chasa_query" class="nav-item">
+                <span class="nav-icon">📊</span>
+                Chasa Query
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title">
+                <h1>Edit Escalation #{{ item.id }}</h1>
+            </div>
+            <div class="header-actions">
+                <!-- User Profile Dropdown -->
+                <div class="user-profile" id="userProfile">
+                    <div class="user-profile-button" onclick="toggleUserDropdown()">
+                        <div class="user-avatar">{{ session.webex_display_name[0] if session.webex_display_name else 'U' }}</div>
+                        <span class="user-name">{{ session.webex_display_name or 'User' }}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="/logout" class="dropdown-item" onclick="signOut()">Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="form-container">
+                <form method="POST">
+                    <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <div class="tab-header-container">
+                        <button type="button" id="general-info-btn" class="tab-button active" onclick="switchTab(event, 'general-info')">
+                            General Information
+                        </button>
+                        <span class="nav-arrow" id="general-arrow" onclick="showNextTab(event, 'team')" title="Go to Team tab">❯</span>
+                        <button type="button" id="team-btn" class="tab-button hidden-tab" onclick="switchTab(event, 'team')">
+                            Teams
+                        </button>
+                        <span class="nav-arrow hidden-arrow" id="team-arrow" onclick="showNextTab(event, 'escalation-details')" title="Go to Escalation Details tab">❯</span>
+                        <button type="button" id="escalation-details-btn" class="tab-button hidden-tab" onclick="switchTab(event, 'escalation-details')">
+                            Escalation Details
+                        </button>
+                        <span class="nav-arrow hidden-arrow" id="escalation-arrow" onclick="showNextTab(event, 'update-review')" title="Go to Update & Review tab">❯</span>
+                        <button type="button" id="update-review-btn" class="tab-button hidden-tab" onclick="switchTab(event, 'update-review')">
+                            Update & Review
+                        </button>
+                    </div>
+                </div>
+
+                <!-- General Information Tab -->
+                <div id="general-info" class="tab-content active">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Customer:</label>
+                            <input type="text" name="customer" value="{{ item.customer }}" class="form-input">
+                        </div>
+                        <div class="form-group2">
+                            <label class="form-label">Version:</label>
+                            <input type="text" name="version" value="{{ item.version }}" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bug ID:</label>
+                            <input type="text" name="bugid" value="{{ item.bugid }}" class="form-input">
+                        </div>
+                        <div class="form-group2">
+                            <label class="form-label">Component:</label>
+                            <input type="text" name="component_name" value="{{ item.component_name }}" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pending Action:</label>
+                            <select name="pending_action" id="pendingActionSelect" class="form-select">
+                                <option value="Dev" {% if item.pending_action == 'Dev' %}selected{% endif %}>Dev</option>
+                                <option value="Esc" {% if item.pending_action == 'Esc' %}selected{% endif %}>Esc</option>
+                                <option value="TAC" {% if item.pending_action == 'TAC' %}selected{% endif %}>TAC</option>
+                                <option value="Test" {% if item.pending_action == 'Test' %}selected{% endif %}>Test</option>
+                                <option value="-" {% if item.pending_action == '-' %}selected{% endif %}>-</option>
+                            </select>
+                        </div>
+                        <div class="form-group2">
+                            <label class="form-label">State:</label>
+                            <select name="state" id="stateSelect" class="form-select" onchange="handleStateChange()">
+                                <option value="OPEN" {% if item.state == 'OPEN' %}selected{% endif %}>Open</option>
+                                <option value="Closed" {% if item.state == 'Closed' %}selected{% endif %}>Closed</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Closing fields - shown only when state is Closed -->
+                        <div id="closingReasonGroup" class="form-group" style="display: {% if item.state == 'Closed' %}block{% else %}none{% endif %};">
+                            <label class="form-label">Closing Reason:</label>
+                            <select name="closing_reason" id="closingReasonSelect" class="form-select">
+                                <option value="">Select closing reason...</option>
+                                <option value="Bug" {% if item.closing_reason == 'Bug' %}selected{% endif %}>Bug</option>
+                                <option value="Network issue" {% if item.closing_reason == 'Network issue' %}selected{% endif %}>Network issue</option>
+                                <option value="Config issue" {% if item.closing_reason == 'Config issue' %}selected{% endif %}>Config issue</option>
+                                <option value="Infra issue" {% if item.closing_reason == 'Infra issue' %}selected{% endif %}>Infra issue</option>
+                                <option value="Serviceability issue" {% if item.closing_reason == 'Serviceability issue' %}selected{% endif %}>Serviceability issue</option>
+                                <option value="Location/AP/SDA" {% if item.closing_reason == 'Location/AP/SDA' %}selected{% endif %}>Location/AP/SDA</option>
+                                <option value="Routing" {% if item.closing_reason == 'Routing' %}selected{% endif %}>Routing</option>
+                                <option value="Documentation" {% if item.closing_reason == 'Documentation' %}selected{% endif %}>Documentation</option>
+                            </select>
+                        </div>
+                        <div id="closingDateGroup" class="form-group2" style="display: {% if item.state == 'Closed' %}block{% else %}none{% endif %};">
+                            <label class="form-label">Closing Date:</label>
+                            <input type="date" name="closed_on" id="closingDateInput" class="form-input" value="{{ item.closed_on }}">
+                        </div>
+                        <div id="closingRemarksGroup" class="form-group full-width" style="grid-column: 1 / -1; margin-top: -8px; display:{% if item.state == 'Closed' %}block{% else %}none{% endif %};">
+                            <label class="form-label">Closing Remarks:</label>
+                            <textarea name="closing_remarks" id="closingRemarksTextarea" class="form-textarea" placeholder="Provide detailed remarks about the closure...">{{ item.closing_remarks }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Severity:</label>
+                            <select name="severity_type" class="form-select">
+                                <option value="">Select severity...</option>
+                                <option value="CAP" {% if item.severity_type == 'CAP' or item.severity_type == 'Cap' %}selected{% endif %}>CAP</option>
+                                <option value="pre-CAP" {% if item.severity_type == 'pre-CAP' or item.severity_type == 'Pre-CAP' %}selected{% endif %}>pre-CAP</option>
+                            </select>
+                        </div>
+                        <div class="form-group2">
+                            <label class="form-label">Severity Remarks:</label>
+                            <textarea name="severity_text" class="form-textarea" placeholder="Provide details about the severity...">{{ item.severity_text }}</textarea>
+                        </div>
+                        
+                        <!-- Always show Reported On -->
+                        <div class="form-group">
+                            <label class="form-label">Reported On:</label>
+                            <input type="date" name="reported_on" value="{{ item.reported_on }}" class="form-input">
+                        </div>
+                        
+                        <!-- Conditional date fields based on state -->
+                        {% if item.state == 'Closed' %}
+                        <div class="form-group2">
+                            <label class="form-label">Closed On:</label>
+                            <input type="date" name="closed_on" value="{{ item.closed_on }}" class="form-input">
+                        </div>
+                        {% else %}
+                        <!-- Show Updated On only if the entry was actually updated -->
+                        {% if item.updated_on %}
+                        <div class="form-group2">
+                            <label class="form-label">Updated On:</label>
+                            <input type="date" name="updated_on" value="{{ item.updated_on }}" class="form-input" readonly>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Team & Technical Tab -->
+                <div id="team" class="tab-content">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <!-- First Row: Primary-POC, DE Manager, Director -->
+                        <div class="form-group">
+                            <label class="form-label">Primary-POC:</label>
+                            <input type="text" name="engineer" id="primary-poc-input" value="{{ item.engineer }}" class="form-input"
+                                   pattern="^[a-zA-Z\s\-\.]+$" 
+                                   title="Enter only one Primary PoC name. For multiple contacts, use the Contributors field."
+                                   oninput="validateAndAutoFillPrimaryPoc(this)"
+                                   onblur="checkPrimaryPocValidity(this)">
+                            <div id="primary-poc-loading" style="display: none; font-size: 12px; color: #666; margin-top: 5px;">
+                                <!-- Auto-fill status messages will appear here -->
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-left: -66px;">
+                            <label class="form-label">DE Manager:</label>
+                            <input type="text" name="dedt_manager" id="de-manager-input" value="{{ item.dedt_manager }}" class="form-input" disabled
+                                   pattern="^[a-zA-Z\s\-\.]+$" 
+                                   title="Enter only one DE Manager name. For multiple contacts, use the Contributors field."
+                                   oninput="validateDeManager(this)">
+                        </div>
+                        <div class="form-group" style="margin-left: -152px;">
+                            <label class="form-label">Director:</label>
+                            <input type="text" name="director" id="director-input" value="{{ item.director }}" class="form-input" disabled>
+                        </div>
+                        
+                        <!-- Second Row: Contributors (full width) -->
+                        <div class="form-group full-width" style="grid-column: 1 / -1;">
+                            <label class="form-label">Contributors:</label>
+                            <input type="text" name="contributors" value="{{ item.contributors }}" class="form-input" placeholder="Team members (comma separated)">
+                        </div>
+                        
+                        <!-- Escalation Engineer and Manager Row -->
+                        <div class="form-group">
+                            <label class="form-label">Escalation Engineer:</label>
+                            <input type="text" name="escalation_engineer" id="escalation-engineer-input" value="{{ item.escalation_engineer }}" class="form-input" placeholder="Enter escalation engineer"
+                                   pattern="^[a-zA-Z\s\-\.]+$" 
+                                   title="Enter only one Escalation Engineer name. For multiple contacts, use the Contributors field."
+                                   oninput="validateAndAutoFillEscalationManager(this)"
+                                   onblur="checkEscalationEngineerValidity(this)">
+                            <div id="escalation-engineer-loading" style="display: none; font-size: 12px; color: #666; margin-top: 5px;">
+                                <!-- Auto-fill status messages will appear here -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-left: -66px;">
+                            <label class="form-label">Escalation Manager:</label>
+                            <input type="text" name="escalation_manager" id="escalation-manager-input" value="{{ item.escalation_manager }}" class="form-input" placeholder="Enter escalation manager" disabled>
+                        </div>
+                        
+                        <!-- Cross Dependent Teams Section -->
+                        <div class="form-group full-width" style="grid-column: 1 / -1;">
+                            <label class="form-label">Cross Dependent Team Details:</label>
+                            <div class="cross-team-table-container">
+                                <table class="cross-team-table" style="margin-left: 3%; width: 60%;">
+                                    <thead>
+                                        <tr>
+                                            <th>TEAM</th>
+                                            <th>COMPONENT NAME</th>
+                                            <th>ENGINEER</th>
+                                            <th>CONTRIBUTORS</th>
+                                            <th>DE MANAGER</th>
+                                            <th>DIRECTOR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>IOS-XE</td>
+                                            <td><input type="text" name="ios_xe_component" value="{{ item.ios_xe_component if item.ios_xe_component else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="ios_xe_engineer" value="{{ item.ios_xe_engineer if item.ios_xe_engineer else '' }}" class="table-input"
+                                                       oninput="validateAndAutoFillTeamManager(this, 'ios_xe')"
+                                                       onblur="checkTeamEngineerValidity(this, 'ios_xe')"></td>
+                                            <td><input type="text" name="ios_xe_contributors" value="{{ item.ios_xe_contributors if item.ios_xe_contributors else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="ios_xe_de_manager" value="{{ item.ios_xe_de_manager if item.ios_xe_de_manager else '' }}" class="table-input" id="ios_xe_de_manager" disabled></td>
+                                            <td><input type="text" name="ios_xe_director" value="{{ item.ios_xe_director if item.ios_xe_director else '' }}" class="table-input" id="ios_xe_director" disabled></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Location</td>
+                                            <td><input type="text" name="swiss_component" value="{{ item.swiss_component if item.swiss_component else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="swiss_engineer" value="{{ item.swiss_engineer if item.swiss_engineer else '' }}" class="table-input"
+                                                       oninput="validateAndAutoFillTeamManager(this, 'swiss')"
+                                                       onblur="checkTeamEngineerValidity(this, 'swiss')"></td>
+                                            <td><input type="text" name="swiss_contributors" value="{{ item.swiss_contributors if item.swiss_contributors else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="swiss_de_manager" value="{{ item.swiss_de_manager if item.swiss_de_manager else '' }}" class="table-input" id="swiss_de_manager" disabled></td>
+                                            <td><input type="text" name="swiss_director" value="{{ item.swiss_director if item.swiss_director else '' }}" class="table-input" id="swiss_director" disabled></td>
+                                        </tr>
+                                        <tr>
+                                            <td>AP/SDA</td>
+                                            <td><input type="text" name="sjc_component" value="{{ item.sjc_component if item.sjc_component else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="sjc_engineer" value="{{ item.sjc_engineer if item.sjc_engineer else '' }}" class="table-input"
+                                                       oninput="validateAndAutoFillTeamManager(this, 'sjc')"
+                                                       onblur="checkTeamEngineerValidity(this, 'sjc')"></td>
+                                            <td><input type="text" name="sjc_contributors" value="{{ item.sjc_contributors if item.sjc_contributors else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="sjc_de_manager" value="{{ item.sjc_de_manager if item.sjc_de_manager else '' }}" class="table-input" id="sjc_de_manager" disabled></td>
+                                            <td><input type="text" name="sjc_director" value="{{ item.sjc_director if item.sjc_director else '' }}" class="table-input" id="sjc_director" disabled></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Routing</td>
+                                            <td><input type="text" name="routing_component" value="{{ item.routing_component if item.routing_component else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="routing_engineer" value="{{ item.routing_engineer if item.routing_engineer else '' }}" class="table-input"
+                                                       oninput="validateAndAutoFillTeamManager(this, 'routing')"
+                                                       onblur="checkTeamEngineerValidity(this, 'routing')"></td>
+                                            <td><input type="text" name="routing_contributors" value="{{ item.routing_contributors if item.routing_contributors else '' }}" class="table-input"></td>
+                                            <td><input type="text" name="routing_de_manager" value="{{ item.routing_de_manager if item.routing_de_manager else '' }}" class="table-input" id="routing_de_manager" disabled></td>
+                                            <td><input type="text" name="routing_director" value="{{ item.routing_director if item.routing_director else '' }}" class="table-input" id="routing_director" disabled></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Escalation Details Tab -->
+                <div id="escalation-details" class="tab-content">
+                    <div class="form-grid">
+                        <!-- First Row: SR, BEMS, and Any upgrade attempt -->
+                        <div class="form-group">
+                            <label class="form-label" style="margin-top: -15px;">SR:</label>
+                            <input type="text" name="sr" value="{{ item.sr }}" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="margin-top: -15px;">BEMS:</label>
+                            <input type="text" name="bems" value="{{ item.bems }}" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="margin-top: -15px;">Any upgrade attempt and new version:</label>
+                            <textarea name="upgrade_attempt" class="form-textarea">{{ item.upgrade_attempt }}</textarea>
+                        </div>
+                        
+                        <!-- Second Row: Symptom and Next step -->
+                        <div class="form-group" style="margin-top: -3%;">
+                            <label class="form-label">Symptom reported/understood:</label>
+                            <textarea name="symptom" style="height: 100px;" class="form-textarea">{{ item.symptom }}</textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: -1.5%;">
+                            <label class="form-label">Next step:</label>
+                            <textarea name="next_step" style="height: 100px;" class="form-textarea">{{ item.next_step }}</textarea>
+                        </div>
+                        
+                        <!-- Third Row: Remarks (full width) -->
+                        <div id="remarksGroup" class="form-group full-width">
+                            <label class="form-label">Remarks:</label>
+                            <div id="remarksHistory" style="margin-bottom: 10px;">
+                                <!-- Display existing remarks with timestamps -->
+                                {% if item.parsed_remarks %}
+                                    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; max-height: 200px; overflow-y: auto; width: 61%;">
+                                        <h6 style="margin: 0 0 10px 0; color: #495057; font-size: 14px; font-weight: bold;">Previous Remarks:</h6>
+                                        <div id="remarksHistoryContent">
+                                            {% for remark in item.parsed_remarks %}
+                                                {% if remark.strip() %}
+                                                    <div class="remark-item" style="margin-bottom: 8px; padding: 8px; background-color: white; border-left: 3px solid #007bff; border-radius: 3px; position: relative;" data-remark-index="{{ loop.index0 }}">
+                                                        {% if remark.strip().startswith('[') and ']' in remark %}
+                                                            <!-- Remark with timestamp -->
+                                                            {% set timestamp_end = remark.find(']') %}
+                                                            {% set timestamp_full = remark[1:timestamp_end] %}
+                                                            {% set content = remark[timestamp_end+2:].strip() %}
+                                                            <!-- Parse timestamp and user name -->
+                                                            {% if ' - ' in timestamp_full %}
+                                                                {% set timestamp_parts = timestamp_full.split(' - ') %}
+                                                                {% set timestamp = timestamp_parts[0] %}
+                                                                {% set user_name = timestamp_parts[1] %}
+                                                                <div class="remark-timestamp" style="font-size: 11px; color: #666; font-weight: bold; margin-bottom: 3px;">
+                                                                    <span style="color: #495057;">{{ timestamp }}</span>
+                                                                    <span style="color: #007bff; margin-left: 8px;">{{ user_name }}</span>
+                                                                </div>
+                                                            {% else %}
+                                                                <!-- Old format without user name -->
+                                                                <div class="remark-timestamp" style="font-size: 11px; color: #666; font-weight: bold; margin-bottom: 3px;">{{ timestamp_full }}</div>
+                                                            {% endif %}
+                                                            <div class="remark-content" style="font-size: 13px; color: #333; line-height: 1.4; padding-right: 60px; white-space: pre-wrap;" data-original-content="{{ content }}">{{ content }}</div>
+                                                        {% else %}
+                                                            <!-- Remark without timestamp -->
+                                                            <div class="remark-timestamp" style="font-size: 11px; color: #666; font-weight: bold; margin-bottom: 3px;">{{ item.updated_on or item.created_on or 'Date not available' }}</div>
+                                                            <div class="remark-content" style="font-size: 13px; color: #333; line-height: 1.4; padding-right: 60px; white-space: pre-wrap;" data-original-content="{{ remark.strip() }}">{{ remark.strip() }}</div>
+                                                        {% endif %}
+                                                        <!-- Edit and Delete buttons -->
+                                                        <div class="remark-actions" style="position: absolute; top: 5px; right: 8px; display: flex; gap: 8px;">
+                                                            <button type="button" class="edit-remark-btn" onclick="editRemark({{ loop.index0 }})" style="background: none; border: none; color: #007bff; cursor: pointer; font-size: 16px; padding: 2px; line-height: 1; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;" title="Edit remark">
+                                                                &#9998;
+                                                            </button>
+                                                            <button type="button" class="delete-remark-btn" onclick="deleteRemark({{ loop.index0 }})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px; padding: 2px; line-height: 1; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;" title="Delete remark">
+                                                                &#128465;
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <label for="newRemark" style="font-size: 14px; color: #495057; margin-bottom: 5px; display: block;">Add New Remark:</label>
+                            <textarea name="new_remark" id="newRemarkTextarea" class="form-textarea" placeholder="Enter your new remark here..." style="min-height: 80px;"></textarea>
+                            <!-- Hidden field to preserve existing remarks -->
+                            <input type="hidden" name="existing_remarks" value="{{ item.remarks or '' }}">
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Update & Review Tab -->
+                <div id="update-review" class="tab-content">
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="margin-bottom: 30px; color: #2c3e50;">Review and Update Your Escalation</h3>
+                        <p style="margin-bottom: 40px; color: #6c757d;">Please review all the changes you've made and click Update to save the escalation.</p>
+                        
+                        <!-- Form Buttons - Only in Update & Review tab -->
+                        <div class="form-buttons">
+                            <button type="submit" class="btn btn-primary" onclick="console.log('Button clicked!'); debugButtonClick(event);">Update</button>
+                            <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+                
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store the original state when page loads
+        const originalState = '{{ item.state }}';
+        
+        function debugButtonClick(event) {
+            console.log('=== DEBUG BUTTON CLICK ===');
+            console.log('Event:', event);
+            console.log('Button:', event.target);
+            console.log('Form:', event.target.form);
+            console.log('Current tab active:', document.querySelector('.tab-content.active')?.id);
+            console.log('Button is inside form:', !!event.target.form);
+            
+            // Check if form exists
+            const form = document.querySelector('form');
+            console.log('Form found:', !!form);
+            console.log('Form method:', form?.method);
+            console.log('Form action:', form?.action);
+            
+            // Manually trigger form submission for testing
+            console.log('Attempting manual form submission...');
+            if (form) {
+                form.submit();
+            } else {
+                console.error('No form found!');
+            }
+        }
+        
+        function validateFormSubmission() {
+            console.log('=== FORM SUBMISSION VALIDATION ===');
+            console.log('Current tab:', document.querySelector('.tab-content.active')?.id);
+            
+            // Check if we're on the Update & Review tab
+            const currentTab = document.querySelector('.tab-content.active');
+            if (!currentTab || currentTab.id !== 'update-review') {
+                alert('Please navigate to the "Update & Review" tab to submit the form.');
+                // Automatically switch to Update & Review tab
+                switchTab({ target: document.getElementById('update-review-btn') }, 'update-review');
+                return false;
+            }
+            
+            // No field validation - allow all submissions
+            console.log('Form validation passed - no required fields!');
+            return true;
+        }
+        
+        function switchTab(event, tabId) {
+            console.log('Switching to tab:', tabId); // Debug log
+            
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Add active class to selected tab and button
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                console.log('Tab activated:', tabId, 'Has active class:', targetTab.classList.contains('active'));
+            }
+            event.target.classList.add('active');
+            
+            // Get tab elements
+            const generalArrow = document.getElementById('general-arrow');
+            const teamArrow = document.getElementById('team-arrow');
+            const escalationArrow = document.getElementById('escalation-arrow');
+            const teamBtn = document.getElementById('team-btn');
+            const escalationBtn = document.getElementById('escalation-details-btn');
+            const updateReviewBtn = document.getElementById('update-review-btn');
+            
+            if (tabId === 'general-info') {
+                // Hide all forward tabs and arrows when going back to general info
+                teamBtn.classList.add('hidden-tab');
+                escalationBtn.classList.add('hidden-tab');
+                updateReviewBtn.classList.add('hidden-tab');
+                teamArrow.classList.add('hidden-arrow');
+                escalationArrow.classList.add('hidden-arrow');
+                teamArrow.style.display = 'none';
+                escalationArrow.style.display = 'none';
+                
+                // Show general arrow to allow going forward again
+                generalArrow.style.display = 'inline-flex';
+                
+            } else if (tabId === 'team') {
+                // Hide escalation and update tabs when going back to team
+                escalationBtn.classList.add('hidden-tab');
+                updateReviewBtn.classList.add('hidden-tab');
+                teamArrow.classList.add('hidden-arrow');
+                escalationArrow.classList.add('hidden-arrow');
+                teamArrow.style.display = 'none';
+                escalationArrow.style.display = 'none';
+                
+                // Hide general arrow and show team arrow to allow going forward again
+                generalArrow.style.display = 'none';
+                teamArrow.style.display = 'inline-flex';
+                teamArrow.classList.remove('hidden-arrow');
+                
+            } else if (tabId === 'escalation-details') {
+                // Hide update tab and show escalation arrow when going back to escalation details
+                updateReviewBtn.classList.add('hidden-tab');
+                escalationArrow.classList.add('hidden-arrow');
+                teamArrow.style.display = 'none';
+                escalationArrow.style.display = 'inline-flex';
+                escalationArrow.classList.remove('hidden-arrow');
+                
+            } else if (tabId === 'update-review') {
+                // Hide all arrows when on update review tab
+                teamArrow.style.display = 'none';
+                escalationArrow.style.display = 'none';
+            }
+        }
+        
+        function showNextTab(event, nextTabId) {
+            // Prevent the parent button click event
+            event.stopPropagation();
+            
+            // Get current tab to determine what validation to perform
+            const currentTab = document.querySelector('.tab-content.active');
+            const currentTabId = currentTab ? currentTab.id : '';
+            
+            // Perform validation based on current tab
+            const validationErrors = validateCurrentTab(currentTabId);
+            
+            if (validationErrors.length > 0) {
+                // Disable the arrow button and add visual feedback
+                event.target.style.opacity = '0.5';
+                event.target.style.cursor = 'not-allowed';
+                event.target.style.pointerEvents = 'none';
+                
+                // Add a title attribute to show what's wrong when hovering
+                event.target.title = 'Please fix validation errors: ' + validationErrors.join(', ');
+                
+                console.log('Tab navigation blocked due to validation errors:', validationErrors);
+                return; // Stop tab navigation
+            }
+            
+            // Get the next tab button using the specific ID
+            let nextTabButton = null;
+            if (nextTabId === 'team') {
+                nextTabButton = document.getElementById('team-btn');
+            } else if (nextTabId === 'escalation-details') {
+                nextTabButton = document.getElementById('escalation-details-btn');
+            } else if (nextTabId === 'update-review') {
+                nextTabButton = document.getElementById('update-review-btn');
+            }
+            
+            if (nextTabButton && nextTabButton.classList.contains('hidden-tab')) {
+                nextTabButton.classList.remove('hidden-tab');
+                
+                // Show the arrow for the next tab (if it exists)
+                if (nextTabId === 'team') {
+                    const teamArrow = document.getElementById('team-arrow');
+                    if (teamArrow) {
+                        teamArrow.classList.remove('hidden-arrow');
+                    }
+                } else if (nextTabId === 'escalation-details') {
+                    const escalationArrow = document.getElementById('escalation-arrow');
+                    if (escalationArrow) {
+                        escalationArrow.classList.remove('hidden-arrow');
+                    }
+                }
+                if (nextTabId === 'team') {
+                    const teamArrow = document.getElementById('team-arrow');
+                    if (teamArrow) {
+                        teamArrow.classList.remove('hidden-arrow');
+                    }
+                }
+                
+                // Hide the current arrow
+                event.target.style.display = 'none';
+                
+                // Switch to the next tab
+                switchTab({ target: nextTabButton }, nextTabId);
+            }
+        }
+        
+        // Validation function - disabled to allow all submissions
+        function validateCurrentTab(tabId) {
+            const errors = []; // Always return empty array - no validation
+            return errors; // Skip all validation
+            
+            if (tabId === 'general-info') {
+                // Validate General Info tab
+                
+                // Check mandatory fields
+                const mandatoryFields = [
+                    { id: 'customer', name: 'Customer' },
+                    { id: 'severity-select', name: 'Severity' },
+                    { name: 'primary_poc', name: 'Primary PoC' },
+                    { name: 'case_sr_number', name: 'Case/SR Number' },
+                    { name: 'short_description', name: 'Short Description' }
+                ];
+                
+                mandatoryFields.forEach(field => {
+                    let element;
+                    if (field.id) {
+                        element = document.getElementById(field.id);
+                    } else {
+                        element = document.querySelector(`[name="${field.name}"]`);
+                    }
+                    
+                    if (element && !element.value.trim()) {
+                        errors.push(`${field.name} is required`);
+                    }
+                });
+                
+                // Check Primary PoC validity
+                const primaryPocInput = document.querySelector('[name="primary_poc"]');
+                const deManagerInput = document.getElementById('de-manager-input');
+                console.log('DEBUG: Primary PoC validation check:', {
+                    primaryPocValue: primaryPocInput ? primaryPocInput.value.trim() : 'null',
+                    deManagerValue: deManagerInput ? deManagerInput.value : 'null',
+                    deManagerExists: !!deManagerInput
+                });
+                if (primaryPocInput && primaryPocInput.value.trim() && deManagerInput && !deManagerInput.value) {
+                    console.log('DEBUG: Adding Primary PoC validation error');
+                    errors.push('Primary PoC username is invalid or does not exist');
+                }
+                
+            } else if (tabId === 'team') {
+                // Validate Team & Technical tab
+                
+                // Check Primary PoC validity (affects DE Manager and Director fields on this tab)
+                const primaryPocInput = document.querySelector('[name="primary_poc"]');
+                const deManagerInput = document.getElementById('de-manager-input');
+                console.log('DEBUG: Primary PoC validation check (Team tab):', {
+                    primaryPocValue: primaryPocInput ? primaryPocInput.value.trim() : 'null',
+                    deManagerValue: deManagerInput ? deManagerInput.value : 'null',
+                    deManagerExists: !!deManagerInput
+                });
+                if (primaryPocInput && primaryPocInput.value.trim() && deManagerInput && !deManagerInput.value) {
+                    console.log('DEBUG: Adding Primary PoC validation error (Team tab)');
+                    errors.push('Primary PoC username is invalid or does not exist');
+                }
+                
+                // Check Escalation Engineer validity
+                const escalationEngineerInput = document.querySelector('[name="escalation_engineer"]');
+                const escalationManagerInput = document.getElementById('escalation-manager-input');
+                if (escalationEngineerInput && escalationEngineerInput.value.trim() && escalationManagerInput && !escalationManagerInput.value) {
+                    errors.push('Escalation Engineer username is invalid or does not exist');
+                }
+                
+                // Check Cross Dependent Team engineers
+                const teamPrefixes = ['ios_xe', 'swiss', 'sjc', 'routing'];
+                teamPrefixes.forEach(prefix => {
+                    const engineerInput = document.querySelector(`[name="${prefix}_engineer"]`);
+                    const managerInput = document.getElementById(`${prefix}_de_manager`);
+                    
+                    if (engineerInput && engineerInput.value.trim() && managerInput && !managerInput.value) {
+                        const teamNames = {
+                            'ios_xe': 'IOS-XE',
+                            'swiss': 'Location',
+                            'sjc': 'AP/SDA',
+                            'routing': 'Routing'
+                        };
+                        errors.push(`${teamNames[prefix]} team engineer username is invalid or does not exist`);
+                    }
+                });
+                
+            } else if (tabId === 'escalation-details') {
+                // Validate Escalation Details tab
+                
+                // Check mandatory fields based on state
+                const stateSelect = document.getElementById('stateSelect');
+                if (stateSelect && stateSelect.value === 'Closed') {
+                    const closingFields = [
+                        { id: 'closingReasonSelect', name: 'Closing Reason' },
+                        { id: 'closingDateInput', name: 'Closing Date' },
+                        { id: 'closingRemarksTextarea', name: 'Closing Remarks' }
+                    ];
+                    
+                    closingFields.forEach(field => {
+                        const element = document.getElementById(field.id);
+                        if (element && !element.value.trim()) {
+                            errors.push(`${field.name} is required when escalation is closed`);
+                        }
+                    });
+                }
+            }
+            
+            return errors;
+        }
+        
+        // Show validation error modal with list of errors
+        function showValidationErrorModal(errors) {
+            const modal = document.getElementById('validation-error-modal');
+            if (modal) {
+                const errorList = modal.querySelector('#validation-error-list');
+                if (errorList) {
+                    // Create list of errors
+                    const listItems = errors.map(error => `<li style="margin-bottom: 8px; color: #d32f2f;">${error}</li>`).join('');
+                    errorList.innerHTML = `<ul style="margin: 0; padding-left: 20px;">${listItems}</ul>`;
+                }
+                
+                modal.classList.add('show');
+                // Focus on the OK button for accessibility
+                setTimeout(() => {
+                    const okButton = modal.querySelector('.modal-btn-primary');
+                    if (okButton) okButton.focus();
+                }, 100);
+            }
+        }
+        
+        // Close validation error modal
+        function closeValidationErrorModal() {
+            const modal = document.getElementById('validation-error-modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+        
+        // Function to check and update arrow button state
+        function updateArrowButtonState() {
+            const currentTab = document.querySelector('.tab-content.active');
+            const currentTabId = currentTab ? currentTab.id : '';
+            
+            console.log('DEBUG: updateArrowButtonState called for tab:', currentTabId);
+            
+            // Find the current arrow button
+            let arrowButton = null;
+            if (currentTabId === 'general-info') {
+                arrowButton = document.getElementById('general-arrow');
+            } else if (currentTabId === 'team') {
+                arrowButton = document.getElementById('team-arrow');
+            } else if (currentTabId === 'escalation-details') {
+                arrowButton = document.getElementById('escalation-arrow');
+            }
+            
+            if (arrowButton) {
+                const validationErrors = validateCurrentTab(currentTabId);
+                
+                console.log('DEBUG: Validation errors found:', validationErrors);
+                
+                if (validationErrors.length > 0) {
+                    // Disable the arrow button
+                    arrowButton.style.opacity = '0.5';
+                    arrowButton.style.cursor = 'not-allowed';
+                    arrowButton.style.pointerEvents = 'none';
+                    arrowButton.title = 'Please fix validation errors: ' + validationErrors.join(', ');
+                    console.log('DEBUG: Arrow button disabled due to errors');
+                } else {
+                    // Enable the arrow button
+                    arrowButton.style.opacity = '1';
+                    arrowButton.style.cursor = 'pointer';
+                    arrowButton.style.pointerEvents = 'auto';
+                    arrowButton.title = '';
+                    console.log('DEBUG: Arrow button enabled - no validation errors');
+                }
+            } else {
+                console.log('DEBUG: No arrow button found for current tab');
+            }
+        }
+        
+        function handleStateChange() {
+            const stateSelect = document.getElementById('stateSelect');
+            const pendingActionSelect = document.getElementById('pendingActionSelect');
+            const closingReasonGroup = document.getElementById('closingReasonGroup');
+            const closingReasonSelect = document.getElementById('closingReasonSelect');
+            const closingDateGroup = document.getElementById('closingDateGroup');
+            const closingDateInput = document.getElementById('closingDateInput');
+            const closingRemarksGroup = document.getElementById('closingRemarksGroup');
+            const closingRemarksTextarea = document.getElementById('closingRemarksTextarea');
+            const remarksGroup = document.getElementById('remarksGroup');
+            const remarksTextarea = document.getElementById('newRemarkTextarea');
+            const escalationEngineerInput = document.querySelector('input[name="escalation_engineer"]');
+            
+            if (!stateSelect) {
+                return;
+            }
+            
+            // Handle pending action based on state
+            if (stateSelect.value === 'OPEN') {
+                // For open escalations, set pending action to 'Dev' if not already set
+                if (!pendingActionSelect.value || pendingActionSelect.value === '-') {
+                    pendingActionSelect.value = 'Dev';
+                }
+            } else if (stateSelect.value === 'Closed') {
+                // For closed escalations, user can choose or it defaults to '-'
+                // Only auto-set to '-' if currently set to 'Dev' (indicating it was an open escalation)
+                if (pendingActionSelect.value === 'Dev') {
+                    pendingActionSelect.value = '-';
+                }
+            }
+            
+            if (stateSelect.value === 'Closed') {
+                // Show closing reason, closing date, and closing remarks fields in Team & Technical tab
+                closingReasonGroup.style.display = 'block';
+                closingDateGroup.style.display = 'block';
+                closingRemarksGroup.style.display = 'block';
+                
+                // TEMPORARILY DISABLED - Make escalation engineer and closing remarks required when state is closed
+                if (escalationEngineerInput) {
+                    // escalationEngineerInput.setAttribute('required', 'required');
+                    // Update label to show required
+                    const escalationEngineerLabel = escalationEngineerInput.closest('.form-group').querySelector('.form-label');
+                    if (escalationEngineerLabel && !escalationEngineerLabel.innerHTML.includes('*')) {
+                        escalationEngineerLabel.innerHTML = 'Escalation Engineer: <span class="required">*</span>';
+                    }
+                }
+                if (closingRemarksTextarea) {
+                    // closingRemarksTextarea.setAttribute('required', 'required');
+                    // Update label to show required
+                    const closingRemarksLabel = closingRemarksTextarea.closest('.form-group').querySelector('.form-label');
+                    if (closingRemarksLabel && !closingRemarksLabel.innerHTML.includes('*')) {
+                        closingRemarksLabel.innerHTML = 'Closing Remarks: <span class="required">*</span>';
+                    }
+                }
+                
+                // Hide general remarks field in Escalation Details tab when state is closed
+                remarksGroup.style.display = 'none';
+                
+                // If changing from Open to Closed, prompt for closing reason and date
+                if (originalState === 'OPEN') {
+                    // Make closing reason and closing date required only when transitioning from Open to Closed
+                    closingReasonSelect.setAttribute('required', 'required');
+                    closingDateInput.setAttribute('required', 'required');
+                    
+                    // Set current date as default closing date
+                    if (!closingDateInput.value) {
+                        const today = new Date().toISOString().split('T')[0];
+                        closingDateInput.value = today;
+                    }
+                    
+                    // Focus on the closing reason field
+                    setTimeout(() => {
+                        closingReasonSelect.focus();
+                    }, 100);
+                } else {
+                    // If already closed, remove required validation to allow editing
+                    closingReasonSelect.removeAttribute('required');
+                    closingDateInput.removeAttribute('required');
+                }
+            } else {
+                // Hide closing reason, closing date, and closing remarks fields in Team & Technical tab
+                closingReasonGroup.style.display = 'none';
+                closingDateGroup.style.display = 'none';
+                closingRemarksGroup.style.display = 'none';
+                closingReasonSelect.removeAttribute('required');
+                closingDateInput.removeAttribute('required');
+                closingReasonSelect.value = '';
+                closingDateInput.value = '';
+                closingRemarksTextarea.value = '';
+                
+                // Remove required attributes when state is not closed
+                const escalationEngineerInput = document.querySelector('input[name="escalation_engineer"]');
+                if (escalationEngineerInput) {
+                    escalationEngineerInput.removeAttribute('required');
+                    // Update label to remove required indicator
+                    const escalationEngineerLabel = escalationEngineerInput.closest('.form-group').querySelector('.form-label');
+                    if (escalationEngineerLabel) {
+                        escalationEngineerLabel.innerHTML = 'Escalation Engineer:';
+                    }
+                }
+                if (closingRemarksTextarea) {
+                    closingRemarksTextarea.removeAttribute('required');
+                    // Update label to remove required indicator
+                    const closingRemarksLabel = closingRemarksTextarea.closest('.form-group').querySelector('.form-label');
+                    if (closingRemarksLabel) {
+                        closingRemarksLabel.innerHTML = 'Closing Remarks:';
+                    }
+                }
+                
+                // Show general remarks field in Escalation Details tab when state is open
+                remarksGroup.style.display = 'block';
+            }
+        }
+        
+        // Enhanced function to validate Primary PoC and auto-fill manager info
+        function validateAndAutoFillPrimaryPoc(input) {
+            // First validate the input
+            validatePrimaryPoc(input);
+            
+            // Clear the manager field when user starts typing (to ensure fresh validation)
+            const deManagerInput = document.getElementById('de-manager-input');
+            if (deManagerInput) {
+                deManagerInput.disabled = false;
+                deManagerInput.value = '';
+                deManagerInput.disabled = true;
+                deManagerInput.style.backgroundColor = '';
+                deManagerInput.title = '';
+            }
+            
+            // Immediately update arrow button since we cleared the manager field
+            updateArrowButtonState();
+            
+            // Auto-fill manager info if input is valid and not empty
+            const primaryPoc = input.value.trim();
+            if (primaryPoc && primaryPoc.length > 2) {
+                // Debounce the API call to avoid too many requests
+                clearTimeout(input.autoFillTimeout);
+                input.autoFillTimeout = setTimeout(() => {
+                    fetchManagerInfo(primaryPoc, false); // Don't show error modal immediately
+                }, 1000); // Wait 1 second after user stops typing
+            }
+            
+            // Update arrow button state after auto-fill attempt
+            setTimeout(updateArrowButtonState, 1100); // Wait for auto-fill to complete
+        }
+
+        // Check primary PoC validity when user clicks away (onblur)
+        function checkPrimaryPocValidity(input) {
+            const primaryPoc = input.value.trim();
+            if (primaryPoc && primaryPoc.length > 2) {
+                // Always check validity when user clicks away, regardless of manager field status
+                const deManagerInput = document.getElementById('de-manager-input');
+                if (deManagerInput && !deManagerInput.value) {
+                    // No manager was auto-filled, check validity by making API call
+                    fetchManagerInfo(primaryPoc, true); // Show error modal if failed
+                }
+            }
+            
+            // Always update arrow button state when user clicks away
+            setTimeout(updateArrowButtonState, 100);
+        }
+
+        // Validate Primary PoC input to allow only single name (no commas or special characters)
+        function validatePrimaryPoc(input) {
+            // Check for commas or special characters
+            const invalidChars = /[,;@#$%^&*()+=\[\]{}|\\:";'<>?/`~]/g;
+            if (invalidChars.test(input.value)) {
+                // Remove invalid characters
+                input.value = input.value.replace(invalidChars, '');
+                
+                // Show disclaimer message
+                showPrimaryPocDisclaimer(input);
+            }
+        }
+        
+        // Show disclaimer when user tries to enter multiple names or special characters
+        function showPrimaryPocDisclaimer(input) {
+            // Create or show disclaimer message
+            let disclaimer = document.getElementById('primary-poc-disclaimer');
+            if (!disclaimer) {
+                disclaimer = document.createElement('div');
+                disclaimer.id = 'primary-poc-disclaimer';
+                disclaimer.style.cssText = `
+                    position: absolute;
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-top: 5px;
+                    font-size: 12px;
+                    color: #856404;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    max-width: 300px;
+                `;
+                disclaimer.innerHTML = `
+                    <strong>⚠️ Notice:</strong> You cannot add more than one Primary PoC. 
+                    <br>For multiple contacts, please use the <strong>Contributors</strong> field below.
+                `;
+                input.parentNode.appendChild(disclaimer);
+                
+                // Add click event listener to document to hide disclaimer when clicking anywhere
+                document.addEventListener('click', function hideDisclaimer(event) {
+                    if (disclaimer && disclaimer.style.display !== 'none') {
+                        // Don't hide if clicking on the input field itself
+                        if (event.target !== input) {
+                            disclaimer.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.style.backgroundColor = '';
+                            // Remove the event listener after hiding
+                            document.removeEventListener('click', hideDisclaimer);
+                        }
+                    }
+                });
+            }
+            
+            // Show disclaimer
+            disclaimer.style.display = 'block';
+            
+            // Highlight the input field temporarily
+            input.style.borderColor = '#ffc107';
+            input.style.backgroundColor = '#fff3cd';
+            
+            // Hide disclaimer and reset styles after 4 seconds (auto-hide)
+            setTimeout(() => {
+                if (disclaimer && disclaimer.style.display !== 'none') {
+                    disclaimer.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.style.backgroundColor = '';
+                }
+            }, 4000);
+        }
+
+        // Validate DE Manager input to allow only single name (no commas or special characters)
+        function validateDeManager(input) {
+            // Check for commas or special characters
+            const invalidChars = /[,;@#$%^&*()+=\[\]{}|\\:";'<>?/`~]/g;
+            if (invalidChars.test(input.value)) {
+                // Remove invalid characters
+                input.value = input.value.replace(invalidChars, '');
+                
+                // Show disclaimer message
+                showDeManagerDisclaimer(input);
+            }
+        }
+        
+        // Show disclaimer when user tries to enter multiple names or special characters in DE Manager
+        function showDeManagerDisclaimer(input) {
+            // Create or show disclaimer message
+            let disclaimer = document.getElementById('de-manager-disclaimer');
+            if (!disclaimer) {
+                disclaimer = document.createElement('div');
+                disclaimer.id = 'de-manager-disclaimer';
+                disclaimer.style.cssText = `
+                    position: absolute;
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-top: 5px;
+                    font-size: 12px;
+                    color: #856404;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    max-width: 300px;
+                `;
+                disclaimer.innerHTML = `
+                    <strong>⚠️ Notice:</strong> You cannot add more than one DE Manager. 
+                    <br>For multiple contacts, please use the <strong>Contributors</strong> field below.
+                `;
+                input.parentNode.appendChild(disclaimer);
+                
+                // Add click event listener to document to hide disclaimer when clicking anywhere
+                document.addEventListener('click', function hideDisclaimer(event) {
+                    if (disclaimer && disclaimer.style.display !== 'none') {
+                        // Don't hide if clicking on the input field itself
+                        if (event.target !== input) {
+                            disclaimer.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.style.backgroundColor = '';
+                            // Remove the event listener after hiding
+                            document.removeEventListener('click', hideDisclaimer);
+                        }
+                    }
+                });
+            }
+            
+            // Show disclaimer
+            disclaimer.style.display = 'block';
+            
+            // Highlight the input field temporarily
+            input.style.borderColor = '#ffc107';
+            input.style.backgroundColor = '#fff3cd';
+            
+            // Hide disclaimer and reset styles after 4 seconds (auto-hide)
+            setTimeout(() => {
+                if (disclaimer && disclaimer.style.display !== 'none') {
+                    disclaimer.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.style.backgroundColor = '';
+                }
+            }, 4000);
+        }
+        
+        // Enhanced function to validate Escalation Engineer and auto-fill manager info
+        function validateAndAutoFillEscalationManager(input) {
+            // First validate the input
+            validateEscalationEngineer(input);
+            
+            // Clear the escalation manager field when user starts typing (to ensure fresh validation)
+            const escalationManagerInput = document.getElementById('escalation-manager-input');
+            if (escalationManagerInput) {
+                escalationManagerInput.disabled = false;
+                escalationManagerInput.value = '';
+                escalationManagerInput.disabled = true;
+                escalationManagerInput.style.backgroundColor = '';
+                escalationManagerInput.title = '';
+            }
+            
+            // Auto-fill manager info if input is valid and not empty
+            const escalationEngineer = input.value.trim();
+            if (escalationEngineer && escalationEngineer.length > 2) {
+                // Debounce the API call to avoid too many requests
+                clearTimeout(input.autoFillTimeout);
+                input.autoFillTimeout = setTimeout(() => {
+                    fetchEscalationManagerInfo(escalationEngineer, false); // Don't show error modal immediately
+                }, 1000); // Wait 1 second after user stops typing
+            }
+            
+            // Update arrow button state
+            setTimeout(updateArrowButtonState, 1100); // Wait for auto-fill to complete
+        }
+
+        // Check escalation engineer validity when user clicks away (onblur)
+        function checkEscalationEngineerValidity(input) {
+            const escalationEngineer = input.value.trim();
+            if (escalationEngineer && escalationEngineer.length > 2) {
+                // Always check validity when user clicks away, regardless of manager field status
+                const escalationManagerInput = document.getElementById('escalation-manager-input');
+                if (escalationManagerInput && !escalationManagerInput.value) {
+                    // No manager was auto-filled, check validity by making API call
+                    fetchEscalationManagerInfo(escalationEngineer, true); // Show error modal if failed
+                }
+            }
+        }
+
+        // Validate Escalation Engineer input to allow only single name (no commas or special characters)
+        function validateEscalationEngineer(input) {
+            // Check for commas or special characters
+            const invalidChars = /[,;@#$%^&*()+=\[\]{}|\\:";'<>?/`~]/g;
+            if (invalidChars.test(input.value)) {
+                // Remove invalid characters
+                input.value = input.value.replace(invalidChars, '');
+                
+                // Show disclaimer message
+                showEscalationEngineerDisclaimer(input);
+            }
+        }
+
+        // Fetch escalation manager info from backend
+        function fetchEscalationManagerInfo(escalationEngineer, showErrorModal = false) {
+            const escalationManagerInput = document.getElementById('escalation-manager-input');
+            const deManagerInput = document.getElementById('de-manager-input');
+            const directorInput = document.getElementById('director-input');
+            
+            // Make API call to backend (no loading indicator shown)
+            fetch(`/api/get-escalation-manager-info?escalation_engineer=${encodeURIComponent(escalationEngineer)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Auto-fill the Escalation Manager field if data is available
+                        if (data.escalation_manager && escalationManagerInput) {
+                            escalationManagerInput.disabled = false; // Enable field for auto-fill
+                            escalationManagerInput.value = data.escalation_manager;
+                            escalationManagerInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            escalationManagerInput.disabled = true; // Disable field after auto-fill
+                            escalationManagerInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                escalationManagerInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                        // Success - no message shown, just visual feedback via green highlighting
+                        
+                    } else {
+                        console.log('Escalation Manager lookup failed:', data.error);
+                        // Only show popup if showErrorModal is true (when user clicks away)
+                        if (showErrorModal) {
+                            showEscalationAutofillErrorModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching escalation manager info:', error);
+                    // Only show popup if showErrorModal is true (when user clicks away)
+                    if (showErrorModal) {
+                        showEscalationAutofillErrorModal();
+                    }
+                });
+
+            // Also fetch DE Manager and Director using the same engineer name
+            fetch(`/api/get-manager-info?primary_poc=${encodeURIComponent(escalationEngineer)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Auto-fill the DE Manager field if data is available
+                        if (data.de_manager && deManagerInput) {
+                            deManagerInput.disabled = false; // Enable field for auto-fill
+                            deManagerInput.value = data.de_manager;
+                            deManagerInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            deManagerInput.disabled = true; // Disable field after auto-fill
+                            deManagerInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                deManagerInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                        // Auto-fill the Director field if data is available
+                        if (data.director && directorInput) {
+                            directorInput.disabled = false; // Enable field for auto-fill
+                            directorInput.value = data.director;
+                            directorInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            directorInput.disabled = true; // Disable field after auto-fill
+                            directorInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                directorInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                    } else {
+                        console.log('DE Manager/Director lookup failed:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching DE Manager/Director info:', error);
+                });
+        }
+
+        // Team Manager autofill functions for Cross Dependent Teams table
+        function validateAndAutoFillTeamManager(input, teamPrefix) {
+            console.log('=== TEAM MANAGER ONINPUT VALIDATION ===');
+            console.log('Input value:', input.value);
+            console.log('Team prefix:', teamPrefix);
+            
+            const engineer = input.value.trim();
+            if (engineer && engineer.length > 2) {
+                // Debounce the API call to avoid too many requests
+                clearTimeout(input.autoFillTimeout);
+                input.autoFillTimeout = setTimeout(() => {
+                    console.log('Triggering team manager auto-fill (no error modal)');
+                    fetchTeamManagerInfo(engineer, teamPrefix, false); // Don't show error modal immediately
+                }, 1000); // Wait 1 second after user stops typing
+            }
+            
+            // Update arrow button state
+            setTimeout(updateArrowButtonState, 1100); // Wait for auto-fill to complete
+        }
+
+        // Check team engineer validity when user clicks away (onblur)
+        function checkTeamEngineerValidity(input, teamPrefix) {
+            console.log('=== TEAM ENGINEER ONBLUR VALIDATION ===');
+            console.log('Input value:', input.value);
+            console.log('Team prefix:', teamPrefix);
+            
+            const engineer = input.value.trim();
+            if (engineer && engineer.length > 2) {
+                const deManagerInput = document.getElementById(teamPrefix + '_de_manager');
+                console.log('DE Manager input:', deManagerInput);
+                console.log('DE Manager value:', deManagerInput ? deManagerInput.value : 'N/A');
+                
+                if (deManagerInput && !deManagerInput.value) {
+                    // No manager was auto-filled, check validity by making API call
+                    console.log('No manager auto-filled, triggering validation with error modal');
+                    fetchTeamManagerInfo(engineer, teamPrefix, true); // Show error modal if failed
+                } else {
+                    console.log('Manager already auto-filled, skipping validation');
+                }
+            }
+        }
+
+        // Fetch manager info for team engineers
+        function fetchTeamManagerInfo(engineer, teamPrefix, showErrorModal = false) {
+            console.log('=== TEAM MANAGER VALIDATION ===');
+            console.log('Engineer:', engineer);
+            console.log('Team Prefix:', teamPrefix);
+            console.log('Show Error Modal:', showErrorModal);
+            
+            const deManagerInput = document.getElementById(teamPrefix + '_de_manager');
+            const directorInput = document.getElementById(teamPrefix + '_director');
+            
+            // Make API call to backend
+            fetch(`/api/get-manager-info?primary_poc=${encodeURIComponent(engineer)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API Response:', data);
+                    if (data.success) {
+                        // Auto-fill the DE Manager field if data is available
+                        if (data.de_manager && deManagerInput) {
+                            deManagerInput.disabled = false; // Enable field for auto-fill
+                            deManagerInput.value = data.de_manager;
+                            deManagerInput.setAttribute('data-autofilled', 'true'); // Add auto-filled attribute for styling
+                            deManagerInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            deManagerInput.disabled = true; // Disable field after auto-fill
+                            deManagerInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                deManagerInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                        // Auto-fill the Director field if data is available
+                        if (data.director && directorInput) {
+                            directorInput.disabled = false; // Enable field for auto-fill
+                            directorInput.value = data.director;
+                            directorInput.setAttribute('data-autofilled', 'true'); // Add auto-filled attribute for styling
+                            directorInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            directorInput.disabled = true; // Disable field after auto-fill
+                            directorInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                directorInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                    } else {
+                        console.log('Team manager lookup failed:', data.error);
+                        // Only show popup if showErrorModal is true (when user clicks away)
+                        if (showErrorModal) {
+                            console.log('Showing auto-fill error modal for team engineer');
+                            showAutofillErrorModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching team manager info:', error);
+                    // Only show popup if showErrorModal is true (when user clicks away)
+                    if (showErrorModal) {
+                        console.log('Showing auto-fill error modal due to API error');
+                        showAutofillErrorModal();
+                    }
+                });
+        }
+
+        // Show disclaimer when user tries to enter multiple names or special characters in Escalation Engineer
+        function showEscalationEngineerDisclaimer(input) {
+            // Create or show disclaimer message
+            let disclaimer = document.getElementById('escalation-engineer-disclaimer');
+            if (!disclaimer) {
+                disclaimer = document.createElement('div');
+                disclaimer.id = 'escalation-engineer-disclaimer';
+                disclaimer.style.cssText = `
+                    position: absolute;
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-top: 5px;
+                    font-size: 12px;
+                    color: #856404;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    max-width: 300px;
+                `;
+                disclaimer.innerHTML = `
+                    <strong>⚠️ Notice:</strong> You cannot add more than one Escalation Engineer. 
+                    <br>For multiple contacts, please use the <strong>Contributors</strong> field below.
+                `;
+                input.parentNode.appendChild(disclaimer);
+                
+                // Add click event listener to document to hide disclaimer when clicking anywhere
+                document.addEventListener('click', function hideEscalationDisclaimer(event) {
+                    if (disclaimer && disclaimer.style.display !== 'none') {
+                        // Don't hide if clicking on the input field itself
+                        if (event.target !== input) {
+                            disclaimer.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.style.backgroundColor = '';
+                            // Remove the event listener after hiding
+                            document.removeEventListener('click', hideEscalationDisclaimer);
+                        }
+                    }
+                });
+            }
+            
+            // Show disclaimer
+            disclaimer.style.display = 'block';
+            
+            // Highlight the input field temporarily
+            input.style.borderColor = '#ffc107';
+            input.style.backgroundColor = '#fff3cd';
+            
+            // Hide disclaimer and reset styles after 4 seconds (auto-hide)
+            setTimeout(() => {
+                if (disclaimer && disclaimer.style.display !== 'none') {
+                    disclaimer.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.style.backgroundColor = '';
+                }
+            }, 4000);
+        }
+
+        // Show escalation auto-fill error modal
+        function showEscalationAutofillErrorModal() {
+            const modal = document.getElementById('escalation-autofill-error-modal');
+            if (modal) {
+                modal.classList.add('show');
+                // Focus on the OK button for accessibility
+                setTimeout(() => {
+                    const okButton = modal.querySelector('.modal-btn-primary');
+                    if (okButton) okButton.focus();
+                }, 100);
+            }
+        }
+
+        // Close escalation auto-fill error modal
+        function closeEscalationAutofillModal() {
+            const modal = document.getElementById('escalation-autofill-error-modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+        
+        // Initialize field visibility on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            handleStateChange();
+            
+            // Initialize form submission handler
+            const form = document.querySelector('form');
+            console.log('Form found on page load:', !!form);
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('=== FORM SUBMISSION EVENT TRIGGERED ===');
+                    console.log('Event:', e);
+                    console.log('Form:', e.target);
+                    console.log('Submitter:', e.submitter);
+                    
+                    // Let's temporarily allow all submissions for debugging
+                    console.log('Allowing form submission for debugging...');
+                    
+                    // Show loading state on button
+                    const updateButton = document.querySelector('button[type="submit"]');
+                    if (updateButton) {
+                        updateButton.innerHTML = 'Updating...';
+                        updateButton.disabled = true;
+                        updateButton.style.background = '#666';
+                    }
+                    
+                    // Allow form to submit
+                    return true;
+                });
+            }
+            
+            // Additional fix: If escalation is already closed on page load, ensure no required validation
+            const currentState = document.querySelector('select[name="state"]').value;
+            const closingReasonSelect = document.getElementById('closingReasonSelect');
+            const closingDateInput = document.getElementById('closingDateInput');
+            
+            if (currentState === 'Closed') {
+                // Remove required attributes for already closed escalations to allow editing
+                closingReasonSelect.removeAttribute('required');
+                closingDateInput.removeAttribute('required');
+                console.log('Removed required attributes for already closed escalation');
+            }
+            
+            // Add event listeners to mandatory fields to update arrow button state
+            const mandatoryFieldSelectors = [
+                '#customer',
+                '#severity-select',
+                '[name="primary_poc"]',
+                '[name="case_sr_number"]',
+                '[name="short_description"]',
+                '[name="escalation_engineer"]',
+                '#stateSelect',
+                '#closingReasonSelect',
+                '#closingDateInput',
+                '#closingRemarksTextarea'
+            ];
+            
+            mandatoryFieldSelectors.forEach(selector => {
+                const field = document.querySelector(selector);
+                if (field) {
+                    field.addEventListener('input', updateArrowButtonState);
+                    field.addEventListener('change', updateArrowButtonState);
+                    field.addEventListener('blur', updateArrowButtonState);
+                }
+            });
+            
+            // Initial arrow button state check
+            setTimeout(updateArrowButtonState, 500);
+        });
+        
+        // User profile dropdown functions
+        function toggleUserDropdown() {
+            const userProfile = document.getElementById('userProfile');
+            userProfile.classList.toggle('active');
+        }
+        
+        function signOut() {
+            // Close dropdown
+            document.getElementById('userProfile').classList.remove('active');
+            
+            // Confirm sign out
+            if (confirm('Are you sure you want to sign out?')) {
+                // Redirect to logout
+                window.location.href = '/logout';
+            }
+            return false; // Prevent default link behavior
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.getElementById('userProfile');
+            if (!userProfile.contains(event.target)) {
+                userProfile.classList.remove('active');
+            }
+        });
+
+        // Enhanced Form Animations and Interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced form input animations
+            const formInputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+            formInputs.forEach(input => {
+                // Add focus animation
+                input.addEventListener('focus', function() {
+                    this.closest('.form-group, .form-group2').style.transform = 'scale(1.02)';
+                    this.closest('.form-group, .form-group2').style.zIndex = '10';
+                });
+
+                input.addEventListener('blur', function() {
+                    this.closest('.form-group, .form-group2').style.transform = 'scale(1)';
+                    this.closest('.form-group, .form-group2').style.zIndex = '1';
+                });
+
+                // Add validation feedback
+                input.addEventListener('input', function() {
+                    if (this.value.length > 0) {
+                        this.style.borderColor = '#28a745';
+                        this.style.boxShadow = '0 0 0 3px rgba(40, 167, 69, 0.1)';
+                    } else {
+                        this.style.borderColor = '#ddd';
+                        this.style.boxShadow = 'none';
+                    }
+                });
+            });
+
+            // Add ripple effect to buttons
+            function createRipple(event) {
+                const button = event.currentTarget;
+                const circle = document.createElement('span');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+                circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+                circle.classList.add('ripple');
+
+                const ripple = button.getElementsByClassName('ripple')[0];
+                if (ripple) {
+                    ripple.remove();
+                }
+
+                button.appendChild(circle);
+            }
+
+            // Add ripple effect to all buttons
+            const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
+            buttons.forEach(button => {
+                button.addEventListener('click', createRipple);
+            });
+        });
+
+        // CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+
+                pointer-events: none;
+            }
+
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+
+        // Auto-fill Manager Info Functions
+        function fetchManagerInfo(primaryPoc, showErrorModal = false) {
+            const deManagerInput = document.getElementById('de-manager-input');
+            const directorInput = document.getElementById('director-input');
+            
+            // Make API call to backend (no loading indicator shown)
+            fetch(`/api/get-manager-info?primary_poc=${encodeURIComponent(primaryPoc)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Auto-fill the fields if data is available
+                        if (data.de_manager && deManagerInput) {
+                            deManagerInput.disabled = false; // Enable field for auto-fill
+                            deManagerInput.value = data.de_manager;
+                            deManagerInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            deManagerInput.disabled = true; // Disable field after auto-fill
+                            deManagerInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                deManagerInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                        if (data.director && directorInput) {
+                            directorInput.disabled = false; // Enable field for auto-fill
+                            directorInput.value = data.director;
+                            directorInput.style.backgroundColor = '#d4edda'; // Light green to indicate auto-filled
+                            directorInput.disabled = true; // Disable field after auto-fill
+                            directorInput.title = 'Auto-filled from rchain command - cannot be edited';
+                            setTimeout(() => {
+                                directorInput.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                        
+                        // Success - no message shown, just visual feedback via green highlighting
+                        // Update arrow button state after successful auto-fill
+                        updateArrowButtonState();
+                        
+                    } else {
+                        console.log('Manager lookup failed:', data.error);
+                        // Update arrow button state after failed lookup
+                        updateArrowButtonState();
+                        // Only show popup if showErrorModal is true (when user clicks away)
+                        if (showErrorModal) {
+                            showAutofillErrorModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching manager info:', error);
+                    // Update arrow button state after API error
+                    updateArrowButtonState();
+                    // Only show popup if showErrorModal is true (when user clicks away)
+                    if (showErrorModal) {
+                        showAutofillErrorModal();
+                    }
+                });
+        }
+
+        // Show auto-fill status message (only for success messages)
+        function showAutoFillMessage(message, type) {
+            const loadingDiv = document.getElementById('primary-poc-loading');
+            if (loadingDiv && type === 'success') {
+                loadingDiv.innerHTML = message;
+                loadingDiv.style.display = 'block';
+                loadingDiv.style.color = '#28a745';
+                
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    loadingDiv.style.display = 'none';
+                    loadingDiv.innerHTML = '<!-- Auto-fill status messages will appear here -->';
+                }, 3000);
+            }
+        }
+
+        // Show auto-fill error modal
+        function showAutofillErrorModal() {
+            const modal = document.getElementById('autofill-error-modal');
+            if (modal) {
+                modal.classList.add('show');
+                // Focus on the OK button for accessibility
+                setTimeout(() => {
+                    const okButton = modal.querySelector('.modal-btn-primary');
+                    if (okButton) okButton.focus();
+                }, 100);
+            }
+        }
+
+        // Close auto-fill error modal
+        function closeAutofillModal() {
+            const modal = document.getElementById('autofill-error-modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // Close modal when clicking outside of it
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('autofill-error-modal');
+            const escalationModal = document.getElementById('escalation-autofill-error-modal');
+            const validationModal = document.getElementById('validation-error-modal');
+            
+            if (event.target === modal) {
+                closeAutofillModal();
+            }
+            if (event.target === escalationModal) {
+                closeEscalationAutofillModal();
+            }
+            if (event.target === validationModal) {
+                closeValidationErrorModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAutofillModal();
+                closeEscalationAutofillModal();
+                closeValidationErrorModal();
+            }
+        });
+
+        // Remark editing and deleting functions
+        function editRemark(remarkIndex) {
+            const remarkItem = document.querySelector(`[data-remark-index="${remarkIndex}"]`);
+            if (!remarkItem) return;
+
+            const contentDiv = remarkItem.querySelector('.remark-content');
+            const originalContent = contentDiv.getAttribute('data-original-content');
+            
+            // Replace content with input field
+            contentDiv.innerHTML = `
+                <textarea style="width: 100%; min-height: 60px; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 13px; resize: vertical;">${originalContent}</textarea>
+                <div style="margin-top: 5px; display: flex; gap: 5px; align-items: center;">
+                    <button type="button" onclick="saveRemarkEdit(${remarkIndex})" style="background: #28a745; color: white; border: none; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-size: 12px; flex-shrink: 0;">Save</button>
+                    <button type="button" onclick="cancelRemarkEdit(${remarkIndex})" style="background: #6c757d; color: white; border: none; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-size: 12px; flex-shrink: 0;">Cancel</button>
+                </div>
+            `;
+            
+            // Hide edit/delete buttons while editing
+            const actionsDiv = remarkItem.querySelector('.remark-actions');
+            if (actionsDiv) actionsDiv.style.display = 'none';
+        }
+
+        function cancelRemarkEdit(remarkIndex) {
+            const remarkItem = document.querySelector(`[data-remark-index="${remarkIndex}"]`);
+            if (!remarkItem) return;
+
+            const contentDiv = remarkItem.querySelector('.remark-content');
+            const originalContent = contentDiv.getAttribute('data-original-content');
+            
+            contentDiv.innerHTML = originalContent;
+            
+            const actionsDiv = remarkItem.querySelector('.remark-actions');
+            if (actionsDiv) actionsDiv.style.display = 'flex';
+        }
+
+        function saveRemarkEdit(remarkIndex) {
+            const remarkItem = document.querySelector(`[data-remark-index="${remarkIndex}"]`);
+            if (!remarkItem) return;
+
+            const textarea = remarkItem.querySelector('textarea');
+            const newContent = textarea.value.trim();
+            
+            if (!newContent) {
+                alert('Remark cannot be empty');
+                return;
+            }
+
+            // Get current item ID from URL
+            const itemId = window.location.pathname.split('/').pop();
+            
+            // Send update request to backend
+            fetch(`/api/edit-remark/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    remarkIndex: remarkIndex,
+                    newContent: newContent
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the content div
+                    const contentDiv = remarkItem.querySelector('.remark-content');
+                    contentDiv.setAttribute('data-original-content', newContent);
+                    contentDiv.innerHTML = newContent;
+                    
+                    // Show edit/delete buttons again
+                    const actionsDiv = remarkItem.querySelector('.remark-actions');
+                    if (actionsDiv) actionsDiv.style.display = 'flex';
+                    
+                    // Show success message
+                    alert('Remark updated successfully');
+                } else {
+                    alert('Error updating remark: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error updating remark:', error);
+                alert('Error updating remark. Please try again.');
+            });
+        }
+
+        function deleteRemark(remarkIndex) {
+            if (!confirm('Are you sure you want to delete this remark? This action cannot be undone.')) {
+                return;
+            }
+
+            // Get current item ID from URL
+            const itemId = window.location.pathname.split('/').pop();
+            
+            // Send delete request to backend
+            fetch(`/api/delete-remark/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    remarkIndex: remarkIndex
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the remark item from DOM
+                    const remarkItem = document.querySelector(`[data-remark-index="${remarkIndex}"]`);
+                    if (remarkItem) {
+                        remarkItem.remove();
+                    }
+                    
+                    // Update indices for remaining remarks
+                    const remainingRemarks = document.querySelectorAll('.remark-item');
+                    remainingRemarks.forEach((item, index) => {
+                        item.setAttribute('data-remark-index', index);
+                        const editBtn = item.querySelector('.edit-remark-btn');
+                        const deleteBtn = item.querySelector('.delete-remark-btn');
+                        if (editBtn) editBtn.setAttribute('onclick', `editRemark(${index})`);
+                        if (deleteBtn) deleteBtn.setAttribute('onclick', `deleteRemark(${index})`);
+                    });
+                    
+                    // Show success message
+                    alert('Remark deleted successfully');
+                } else {
+                    alert('Error deleting remark: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting remark:', error);
+                alert('Error deleting remark. Please try again.');
+            });
+        }
+
+        document.head.appendChild(style);
+    </script>
+
+    <!-- Auto-fill Error Modal -->
+    <div id="autofill-error-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p style="display: inline-block; margin: 0; margin-right: 15px;"><strong>Primary poc username doesn't exist</strong></p>
+                <button class="modal-btn modal-btn-primary" onclick="closeAutofillModal()" style="display: inline-block;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Escalation Auto-fill Error Modal -->
+    <div id="escalation-autofill-error-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p style="display: inline-block; margin: 0; margin-right: 15px;"><strong>Esc engineer username doesn't exist</strong></p>
+                <button class="modal-btn modal-btn-primary" onclick="closeEscalationAutofillModal()" style="display: inline-block;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Error Modal -->
+    <div id="validation-error-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-icon">⚠️</span>
+                <span class="modal-title">Please Fix These Issues</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px;"><strong>The following issues must be resolved before proceeding:</strong></p>
+                <div id="validation-error-list">
+                    <!-- Error list will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="closeValidationErrorModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

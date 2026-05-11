@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escalation Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            overflow: hidden;
+            height: 100vh;
+            font-size: 16px; /* Base font size for rem calculations */
+        }
+        
+        /* Ensure images and media are responsive */
+        img, video, iframe {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Flexible containers */
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        /* Hide scrollbars for webkit browsers */
+        .main-content::-webkit-scrollbar,
+        .content-area::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .main-content,
+        .content-area {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        /* Dark Sidebar */
+        .sidebar {
+            width: 200px;
+            background: linear-gradient(135deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Sidebar Elements */
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+      
+        .sidebar-title {
+            color: #f39c12;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: -5px;
+            margin-left: 3px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #f39c12;
+            transform: translateX(3px);
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        .nav-item.active {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border-left-color: #f39c12;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: scale(1.1) rotate(3deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 200px;
+            height: 100vh;
+            background: #f5f7fa;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .top-header {
+            background: linear-gradient(90deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            padding: 0 30px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 12px;
+        }
+        
+        .header-title h1 {
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 1.5px;
+            text-align: center;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        /* User Profile Dropdown */
+        .user-profile {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #4285f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .dropdown-arrow {
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .user-profile.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        
+        .user-profile.active .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .bulb-icon {
+            width: 28px;
+            height: 28px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .content-area {
+            padding: 15px;
+            height: calc(100vh - 50px); /* Account for top header */
+            overflow: hidden; /* Disable scrolling */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            margin-bottom: 10px;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            white-space: nowrap;
+        }
+        
+        .filter-group {
+            min-width: 200px;
+            max-width: 250px;
+            flex: 1 1 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            align-self: flex-start;
+        }
+        
+        .filter-label {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: auto;
+            margin-bottom: 4px;
+            display: block;
+            height: 22px;
+            line-height: 22px;
+        }
+        
+        .filter-select {
+            flex: 1;
+            padding: 6px 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            color: #2c3e50;
+            font-size: 0.8rem;
+            transition: border-color 0.3s ease;
+            min-width: 0;
+            height: 30px;
+            box-sizing: border-box;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Searchable Dropdown Styles */
+        .searchable-dropdown {
+            position: relative;
+            display: block;
+            width: 100%;
+            flex: 1;
+        }
+
+        .searchable-input {
+            width: 100%;
+            padding: 6px 28px 6px 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            background: white;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 30px;
+            box-sizing: border-box;
+            line-height: 1.2;
+        }
+
+        .searchable-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            cursor: text;
+        }
+
+        .dropdown-arrow-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+            font-size: 0.7rem;
+        }
+
+        .searchable-dropdown.open .dropdown-arrow-icon {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .searchable-dropdown.open .dropdown-options {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            font-size: 0.8rem;
+            color: #2c3e50;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option.highlighted {
+            background-color: #e3f2fd;
+        }
+
+        .no-options {
+            padding: 8px 12px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            flex-shrink: 0;
+            margin-left: 31px;
+            margin-top: 22px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: darkblue;
+            color: white;
+            height: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:hover {
+            background: black;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            height: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 1em;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            display: table;
+            height: 100%;
+        }
+        
+        .dashboard-table th {
+            background: darkblue;
+            border-bottom: 2px solid #5a67d8 !important;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px;
+            text-align: center;
+            border: none;
+            height: 35px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+        
+        
+        .dashboard-table th:first-child {
+            text-align: center;
+            width: 60px;
+        }
+        
+        .dashboard-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 0.8rem;
+            color: #2c3e50;
+            height: 35px;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            max-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Force all content within table cells to be vertically centered */
+        .dashboard-table td * {
+            vertical-align: middle;
+        }
+        
+        .dashboard-table td:first-child {
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .dashboard-table tbody tr {
+            transition: all 0.2s ease;
+            height: 35px;
+            display: table-row;
+        }
+        
+        .dashboard-table thead tr {
+            height: 35px;
+            display: table-row;
+        }
+        
+        .dashboard-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .dashboard-table tbody tr:nth-child(even) {
+            background: #fafbfc;
+        }
+        
+        .dashboard-table tbody tr:nth-child(even):hover {
+            background: #f8f9ff;
+        }
+        
+        .dashboard-table td a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            vertical-align: middle;
+        }
+        
+        .dashboard-table td a:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+        
+        /* Status badges */
+        .state-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            line-height: 1.2;
+        }
+        
+        .state-open {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .state-closed {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .state-review-done {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .state-draft {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .state-review-pending {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+        
+        /* Category badges */
+        .category-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            line-height: 1.2;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            color: #667eea;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pagination button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.4s ease;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination select {
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            color: #2c3e50;
+            width: 70px;
+        }
+        
+        /* Webex Button */
+        /* .webex-button {
+            background: linear-gradient(135deg, #00C853 0%, #66BB6A 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .webex-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .webex-button:hover {
+            background: linear-gradient(135deg, #00B347 0%, #5CB860 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,179,71,0.3);
+        }
+
+        .webex-button:hover::before {
+            left: 100%;
+        }
+        
+        .webex-button:active {
+            transform: translateY(0);
+        } */
+        
+        /* Table columns width */
+        .dashboard-table th:nth-child(1) { width: 4%; }  /* # */
+        .dashboard-table th:nth-child(2) { width: 14%; } /* DE Manager */
+        .dashboard-table th:nth-child(3) { width:14%; } /* Customer */
+        .dashboard-table th:nth-child(4) { width: 10%; }  /* Version */
+        .dashboard-table th:nth-child(5) { width: 12%; }  /* Primary-POC */
+        .dashboard-table th:nth-child(6) { width: 8%; }  /* State */
+        .dashboard-table th:nth-child(7) { width: 10%; } /* Reported On */
+        .dashboard-table th:nth-child(8) { width: 18%; } /* Cross Dependency */
+        .dashboard-table th:nth-child(9) { width: 6%; } /* CAP Status */
+        .dashboard-table th:nth-child(10) { width: 10%; } /* Pending Actions */
+        
+        /* Special styling for wrapped header text */
+        .dashboard-table th:nth-child(10) {
+            line-height: 1.2;
+            vertical-align: middle;
+            text-align: center;
+            height: 50px;
+            display: table-cell;
+        }
+        
+        /* CAP Status column styling - align content to the right */
+        .dashboard-table th:nth-child(9) {
+            text-align: right;
+            padding-right: 8px;
+            font-size: 0.65rem;
+            white-space: nowrap;
+        }
+        
+        .dashboard-table td:nth-child(9) {
+            text-align: right;
+            padding-right: 8px;
+            max-width: none;
+            overflow: visible;
+            text-overflow: unset;
+            white-space: nowrap;
+        }
+        
+        /* Hover effect to show full text for all columns */
+        .dashboard-table td:hover {
+            overflow: visible;
+            white-space: normal;
+            word-wrap: break-word;
+            position: relative;
+            background: #f8f9fa;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+        
+        /* Exception for first column (row numbers) - don't truncate */
+        .dashboard-table td:first-child {
+            max-width: none;
+            overflow: visible;
+            text-overflow: unset;
+            white-space: normal;
+        }
+        
+        /* Responsive Design - Mobile First Approach */
+        
+        /* Large Desktop Screens (1920px+) */
+        @media (min-width: 1920px) {
+            .sidebar {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 250px;
+            }
+            .content-area {
+                padding: 40px;
+            }
+            .top-header {
+                padding: 0 40px;
+                height: 60px;
+            }
+            .header-title h1 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Desktop Screens (1200px - 1919px) */
+        @media (min-width: 1200px) and (max-width: 1919px) {
+            .filter-row {
+                flex-wrap: nowrap;
+            }
+            .filter-group {
+                flex-shrink: 0;
+            }
+            .dashboard-table th,
+            .dashboard-table td {
+                font-size: 0.9rem;
+                padding: 12px 10px;
+            }
+        }
+        
+        /* Medium Desktop/Laptop Screens (992px - 1199px) */
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .sidebar {
+                width: 180px;
+            }
+            .main-content {
+                margin-left: 180px;
+            }
+            .content-area {
+                padding: 20px;
+            }
+            .dashboard-table {
+                font-size: 0.85rem;
+            }
+            .dashboard-table th,
+            .dashboard-table td {
+                padding: 10px 8px;
+            }
+            .filter-row {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+        }
+
+        /* Tablet Landscape (768px - 991px) */
+        @media (max-width: 991px) and (min-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 10px 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar-nav {
+                display: flex;
+                gap: 10px;
+                padding: 0;
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                padding: 8px 16px;
+                border-left: none;
+                border-radius: 8px;
+                font-size: 0.9rem;
+            }
+            
+            .nav-icon {
+                margin-right: 6px;
+            }
+            
+            .user-profile {
+                border-top: none;
+                padding: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-area {
+                padding: 20px 15px;
+            }
+            
+            .top-header {
+                padding: 0 20px;
+                height: 45px;
+            }
+            
+            .header-title h1 {
+                font-size: 1.1rem;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .filter-buttons {
+                align-self: stretch;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+            
+            .dashboard-table {
+                min-width: 700px;
+                font-size: 0.8rem;
+            }
+            
+            .dashboard-table th,
+            .dashboard-table td {
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+        }
+        
+        /* Tablet Portrait (576px - 767px) */
+        @media (max-width: 767px) and (min-width: 576px) {
+            .sidebar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+            }
+            
+            .sidebar-nav {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .nav-item {
+                padding: 12px 16px;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .content-area {
+                padding: 15px;
+            }
+            
+            .top-header {
+                padding: 0 15px;
+                height: 50px;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            .header-title h1 {
+                font-size: 1rem;
+                text-align: center;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-group label {
+                font-size: 0.9rem;
+            }
+            
+            .custom-select,
+            .filter-input {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+            
+            .dashboard-table {
+                min-width: 600px;
+                font-size: 0.75rem;
+            }
+            
+            .dashboard-table th,
+            .dashboard-table td {
+                padding: 6px 4px;
+                white-space: nowrap;
+            }
+            
+            /* Adjust column widths for smaller screens */
+            .dashboard-table th:nth-child(1) { width: 40px; }  /* # */
+            .dashboard-table th:nth-child(2) { width: 80px; }  /* DE Manager */
+            .dashboard-table th:nth-child(3) { width: 100px; } /* Customer */
+            .dashboard-table th:nth-child(4) { width: 70px; }  /* Version */
+            .dashboard-table th:nth-child(5) { width: 80px; }  /* Bug ID */
+            .dashboard-table th:nth-child(6) { width: 80px; }  /* Component */
+            .dashboard-table th:nth-child(7) { width: 60px; }  /* Severity */
+            .dashboard-table th:nth-child(8) { width: 80px; }  /* Cross Dependency */
+            .dashboard-table th:nth-child(9) { width: 70px; }  /* Cap Status */
+            .dashboard-table th:nth-child(10) { width: 70px; } /* State */
+        }
+        
+        /* Mobile Phones (up to 575px) */
+        @media (max-width: 575px) {
+            .sidebar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                text-align: center;
+                padding: 10px 0;
+            }
+            
+            .sidebar-title {
+                font-size: 1rem;
+            }
+            
+            .sidebar-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .nav-item {
+                padding: 15px;
+                justify-content: center;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+            
+            .nav-icon {
+                margin-right: 8px;
+                font-size: 1rem;
+            }
+            
+            .content-area {
+                padding: 10px;
+            }
+            
+            .top-header {
+                padding: 0 10px;
+                height: 45px;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            .header-title h1 {
+                font-size: 0.9rem;
+                text-align: center;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-group label {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+            
+            .custom-select,
+            .filter-input {
+                font-size: 0.8rem;
+                padding: 6px;
+                width: 100%;
+            }
+            
+            .filter-buttons {
+                align-self: stretch;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 10px;
+                font-size: 0.8rem;
+                width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                margin: 0 -10px;
+                padding: 0 10px;
+            }
+            
+            .dashboard-table {
+                min-width: 500px;
+                font-size: 0.7rem;
+            }
+            
+            .dashboard-table th,
+            .dashboard-table td {
+                padding: 4px 3px;
+                white-space: nowrap;
+            }
+            
+            /* Further compress column widths for mobile */
+            .dashboard-table th:nth-child(1) { width: 30px; }  /* # */
+            .dashboard-table th:nth-child(2) { width: 60px; }  /* DE Manager */
+            .dashboard-table th:nth-child(3) { width: 80px; }  /* Customer */
+            .dashboard-table th:nth-child(4) { width: 50px; }  /* Version */
+            .dashboard-table th:nth-child(5) { width: 60px; }  /* Bug ID */
+            .dashboard-table th:nth-child(6) { width: 60px; }  /* Component */
+            .dashboard-table th:nth-child(7) { width: 40px; }  /* Severity */
+            .dashboard-table th:nth-child(8) { width: 60px; }  /* Cross Dependency */
+            .dashboard-table th:nth-child(9) { width: 50px; }  /* Cap Status */
+            .dashboard-table th:nth-child(10) { width: 50px; } /* State */
+            
+            /* Mobile responsive table adjustments */
+                padding: 2px 4px;
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            
+            <div class="sidebar-title">Escalations Hub</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/submit_form" class="nav-item">
+                <span class="nav-icon">✚</span>
+                New Escalation
+            </a>
+            <a href="/dashboard" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="/statistics" class="nav-item">
+                <span class="nav-icon">📈</span>
+                Statistics
+            </a>
+            <a href="/ai_summary" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                AI Summary
+            </a>
+            <a href="/custom_query" class="nav-item">
+                <span class="nav-icon">🔍</span>
+                Custom Query
+            </a>
+            <a href="/chasa_query" class="nav-item">
+                <span class="nav-icon">📊</span>
+                Chasa Query
+            </a>
+        </nav>
+        
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title">
+                
+                <h1>Escalation Dashboard</h1>
+            </div>
+            <div class="header-actions">
+                <!-- <button type="button" class="webex-button" onclick="sendDashboardToWebex()">
+                    📊 Send to Webex
+                </button> -->
+                
+                <!-- User Profile Dropdown -->
+                <div class="user-profile" id="userProfile">
+                    <div class="user-profile-button" onclick="toggleUserDropdown()">
+                        <div class="user-avatar">{{ session.webex_display_name[0] if session.webex_display_name else 'U' }}</div>
+                        <span class="user-name">{{ session.webex_display_name or 'User' }}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="/logout" class="dropdown-item" onclick="signOut()">Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area animate-fade-in-up">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <form method="GET" action="" class="filter-row" onsubmit="return handleFormSubmit()">
+                    <div class="filter-group">
+                        <label for="de_manager" class="filter-label">DE Manager:</label>
+                        <div class="searchable-dropdown" id="deManagerDropdown">
+                            <input type="text" 
+                                   id="de_manager" 
+                                   name="de_manager"
+                                   class="searchable-input" 
+                                   placeholder="Type to search managers..." 
+                                   value="{{ request.args.get('de_manager', '') }}"
+                                   autocomplete="off">
+                            <span class="dropdown-arrow-icon">▼</span>
+                            <div class="dropdown-options" id="deManagerOptions">
+                                <div class="dropdown-option" data-value="">All DE Managers</div>
+                                {% for de in de_managers %}
+                                <div class="dropdown-option" data-value="{{ de }}">{{ de }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="state" class="filter-label">State:</label>
+                        <select id="state" name="state" class="filter-select">
+                            <option value="">All States</option>
+                            {% for state_option in states %}
+                            <option value="{{ state_option }}" {% if request.args.get('state') == state_option %}selected{% endif %}>{{ state_option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn btn-primary">Apply</button>
+                        <button type="button" onclick="clearFilters()" class="btn btn-secondary">Clear</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Table Container -->
+            <div class="table-container">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>DE Manager</th>
+                            <th>Customer</th>
+                            <th>Version</th>
+                            <th>Primary-POC</th>
+                            <th>State</th>
+                            <th>Reported On</th>
+                            <th>Cross Dependency</th>
+                            <th>CAP Status</th>
+                            <th>PENDING<br>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td><a href="/edit/{{ item.id }}">#{{ item.id }}</a></td>
+                            <td title="{{ item.dedt_manager if item.dedt_manager else '-' }}">{{ item.dedt_manager if item.dedt_manager else '-' }}</td>
+                            <td title="{{ item.customer if item.customer else '-' }}">{{ item.customer if item.customer else '-' }}</td>
+                            <td>{{ item.version if item.version else '-' }}</td>
+                            <td title="{{ item.engineer if item.engineer else '-' }}">{{ item.engineer if item.engineer else '-' }}</td>
+                            <td><span class="state-badge state-{{ item.state.lower() if item.state else 'open' }}">{{ item.state if item.state else 'OPEN' }}</span></td>
+                            <td>{{ item.reported_on if item.reported_on else '-' }}</td>
+                            <td><span class="category-badge">{{ item.cross_team if item.cross_team else '-' }}</span></td>
+                            <td>{{ item.severity_type if item.severity_type else '-' }}</td>
+                            <td>
+                                {% if item.state and item.state.lower() == 'open' %}
+                                    {{ item.pending_action if item.pending_action else 'Dev' }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                <form method="GET" action="" style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Preserve existing filter parameters -->
+                    {% if request.args.get('de_manager') %}
+                        <input type="hidden" name="de_manager" value="{{ request.args.get('de_manager') }}">
+                    {% endif %}
+                    {% if request.args.get('state') %}
+                        <input type="hidden" name="state" value="{{ request.args.get('state') }}">
+                    {% endif %}
+                    {% if request.args.get('engineer') %}
+                        <input type="hidden" name="engineer" value="{{ request.args.get('engineer') }}">
+                    {% endif %}
+                    
+                    <button type="submit" name="page" value="{{ page - 1 }}" {% if page <= 1 %}disabled{% endif %}>&laquo;</button>
+                    <span>{{ page }}</span>
+                    <button type="submit" name="page" value="{{ page + 1 }}" {% if page >= total_pages %}disabled{% endif %}>&raquo;</button>
+                    <select name="per_page" onchange="this.form.submit()">
+                        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                    </select>
+                    <span style="margin-left: 10px; color: #666;">of {{ total_items if total_items else items|length }} items</span>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize page load animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger dashboard reload animation
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                contentArea.classList.add('animate-fade-in-up');
+            }
+            
+            // Initialize searchable dropdown
+            initializeSearchableDropdown();
+        });
+
+        // Searchable Dropdown Functionality
+        function initializeSearchableDropdown() {
+            const dropdown = document.getElementById('deManagerDropdown');
+            const input = document.getElementById('de_manager');
+            const optionsContainer = document.getElementById('deManagerOptions');
+            const options = optionsContainer.querySelectorAll('.dropdown-option');
+            
+            let isOpen = false;
+            let selectedValue = '';
+            
+            // Store all options for filtering
+            const allOptions = Array.from(options).map(option => ({
+                element: option,
+                text: option.textContent.trim(),
+                value: option.getAttribute('data-value')
+            }));
+            
+            // Set initial display value
+            const currentValue = input.value;
+            if (currentValue) {
+                selectedValue = currentValue;
+                const selectedOption = allOptions.find(opt => opt.value === currentValue);
+                if (selectedOption) {
+                    input.placeholder = selectedOption.text;
+                }
+            }
+            
+            // Show all options when input is focused or clicked
+            input.addEventListener('focus', function() {
+                openDropdown();
+                this.select(); // Select all text for easy replacement
+            });
+            
+            input.addEventListener('click', function() {
+                if (!isOpen) {
+                    openDropdown();
+                }
+            });
+            
+            // Filter options as user types
+            input.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                filterOptions(searchText);
+                selectedValue = ''; // Clear selection when typing
+                if (!isOpen) {
+                    openDropdown();
+                }
+            });
+            
+            // Handle option clicks
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            // Handle keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // If there's exactly one visible option, select it
+                    const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
+                    if (visibleOptions.length === 1) {
+                        selectOption(visibleOptions[0]);
+                    }
+                }
+            });
+            
+            function openDropdown() {
+                isOpen = true;
+                dropdown.classList.add('open');
+                filterOptions(input.value.toLowerCase());
+            }
+            
+            function closeDropdown() {
+                isOpen = false;
+                dropdown.classList.remove('open');
+                
+                // If no valid selection was made, restore the previous selection
+                if (!selectedValue && input.value.trim() === '') {
+                    input.placeholder = 'Type to search managers...';
+                } else if (!selectedValue && input.value.trim() !== '') {
+                    // Check if current input matches any option exactly
+                    const matchingOption = allOptions.find(opt => 
+                        opt.text.toLowerCase() === input.value.toLowerCase() || 
+                        opt.value.toLowerCase() === input.value.toLowerCase()
+                    );
+                    if (matchingOption) {
+                        selectOption(matchingOption.element);
+                    } else {
+                        // Reset to no selection
+                        input.value = '';
+                        selectedValue = '';
+                        input.placeholder = 'Type to search managers...';
+                    }
+                }
+            }
+            
+            function filterOptions(searchText) {
+                let hasResults = false;
+                
+                allOptions.forEach(option => {
+                    const matches = searchText === '' || option.text.toLowerCase().includes(searchText);
+                    option.element.style.display = matches ? 'block' : 'none';
+                    if (matches) {
+                        hasResults = true;
+                    }
+                });
+                
+                // Show "no options" message if no matches
+                let noOptionsMsg = optionsContainer.querySelector('.no-options');
+                if (!hasResults && searchText.trim() !== '') {
+                    if (!noOptionsMsg) {
+                        noOptionsMsg = document.createElement('div');
+                        noOptionsMsg.className = 'no-options';
+                        noOptionsMsg.textContent = 'No managers found';
+                        optionsContainer.appendChild(noOptionsMsg);
+                    }
+                    noOptionsMsg.style.display = 'block';
+                } else if (noOptionsMsg) {
+                    noOptionsMsg.style.display = 'none';
+                }
+            }
+            
+            function selectOption(optionElement) {
+                const value = optionElement.getAttribute('data-value');
+                const text = optionElement.textContent.trim();
+                
+                selectedValue = value;
+                input.value = value; // Store the actual value for form submission
+                input.placeholder = text; // Show the display text as placeholder
+                
+                closeDropdown();
+            }
+        }
+
+        function clearFilters() {
+            // Clear searchable dropdown
+            const deManagerInput = document.getElementById('de_manager');
+            deManagerInput.value = '';
+            deManagerInput.placeholder = 'Type to search managers...';
+            
+            // Clear regular dropdowns
+            document.getElementById('state').selectedIndex = 0;
+            
+            // Submit form
+            document.forms[0].submit();
+        }
+        
+        function handleFormSubmit() {
+            // The input value is already set correctly by the searchable dropdown
+            return true;
+        }
+        
+        /* function sendDashboardToWebex() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            // Update button to show loading state
+            button.innerHTML = '⏳ Sending...';
+            button.disabled = true;
+            
+            fetch('/send_dashboard_to_webex', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '✅ Sent!';
+                    button.style.background = 'linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        button.style.background = '';
+                    }, 3000);
+                } else {
+                    button.innerHTML = '❌ Failed';
+                    button.style.background = 'linear-gradient(135deg, #f44336 0%, #e57373 100%)';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        button.style.background = '';
+                    }, 3000);
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                button.innerHTML = '❌ Error';
+                button.style.background = 'linear-gradient(135deg, #f44336 0%, #e57373 100%)';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.style.background = '';
+                }, 3000);
+                console.error('Error:', error);
+            });
+        } */
+        
+        // User profile dropdown functions
+        function toggleUserDropdown() {
+            const userProfile = document.getElementById('userProfile');
+            userProfile.classList.toggle('active');
+        }
+        
+        function signOut() {
+            // Close dropdown
+            document.getElementById('userProfile').classList.remove('active');
+            
+            // Confirm sign out
+            if (confirm('Are you sure you want to sign out?')) {
+                // Redirect to logout
+                // window.location.href = '/logout';
+            }
+            return false; // Prevent default link behavior
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.getElementById('userProfile');
+            if (!userProfile.contains(event.target)) {
+                userProfile.classList.remove('active');
+            }
+        });
+    </script>
+
+    <script>
+        function refreshView() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

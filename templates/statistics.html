@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Escalation Hub</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        /* Dark Sidebar */
+        .sidebar {
+            width: 200px;
+            background: linear-gradient(135deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Sidebar Elements */
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-title {
+            color: #f39c12;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: -5px;
+            margin-left: 3px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #f39c12;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        .nav-item.active {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border-left-color: #f39c12;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 200px;
+            background: #f5f7fa;
+        }
+        
+        .top-header {
+            background: linear-gradient(90deg, #000000 0%, #000000 35%, #191970 50%, #333366 65%, #4d4d7a 80%, #6666aa 100%);
+            padding: 0 30px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-title h1 {
+            color: white;
+            margin-top: 20px;
+            font-size: 28px;
+            letter-spacing: 1.5px;
+            margin-left: 480px;
+            display: inline-flex;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+            margin-right: 30px;
+        }
+        
+        /* User Profile Dropdown */
+        .user-profile {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #4285f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .dropdown-arrow {
+            font-size: 0.7rem;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            margin-top: 8px;
+        }
+        
+        .user-profile.active .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .bulb-icon {
+            width: 28px;
+            height: 28px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .content-area {
+            padding: 10px;
+        }
+        
+        /* Statistics Grid - Always Single Row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            min-height: 70px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .stat-title {
+            color: #2c3e50;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.2;
+            flex: 1;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .stat-card:hover .stat-icon {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .stat-card:hover .stat-number {
+            color: #764ba2;
+        }
+        
+        .stat-description {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        /* Chart Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            min-height: 320px; /* Reduced height to fit both sections */
+            position: relative;
+            width: 100%;
+        }
+        
+        .chart-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            color: #2c3e50;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 220px; /* Make width equal to height for square container */
+            max-width: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 8px;
+            margin: 0 auto 10px auto; /* Center the container */
+            padding: 15px;
+        }
+        
+        .chart-canvas {
+            width: 180px !important;
+            height: 180px !important; /* Equal width and height for perfect circle */
+            max-width: 180px;
+            max-height: 180px;
+        }
+
+        
+        
+        .legend-container {
+            margin-top: 15px;
+            margin-left: 65px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: none;
+            width: 89%;
+            padding: 0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+            background: none;
+            border-radius: 0;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            width: auto;
+            color: #2c3e50;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        /* Contributor Statistics - Professional Colorful Design with Enhanced Animations */
+        .contributor-section {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+
+        
+        .section-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #10b981, #f59e0b);
+        }
+        
+        .contributor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .contributor-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contributor-card:first-child {
+            border-left: 4px solid #10b981;
+        }
+        
+        .contributor-card:last-child {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .contributor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(79, 70, 229, 0.1), 
+                transparent
+            );
+            transition: left 0.6s ease;
+        }
+        
+        .contributor-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            /* Ensure opacity stays at 1 to prevent disappearing */
+            opacity: 1 !important;
+        }
+        
+        .contributor-card:hover::before {
+            left: 100%;
+        }
+        
+        .contributor-title {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+        }
+        
+        .contributor-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .contributor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            font-size: 0.75rem;
+            position: relative;
+        }
+        
+
+        
+        .contributor-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+            transition: width 0.3s ease;
+            border-radius: 6px;
+            z-index: -1;
+        }
+        
+        .contributor-item:hover {
+            background: transparent;
+            padding-left: 8px;
+            border-radius: 6px;
+            transform: translateX(5px);
+        }
+        
+        .contributor-item:hover::before {
+            width: 100%;
+        }
+        
+        .contributor-item:not(:last-child) {
+            margin-bottom: 3px;
+        }
+        
+        .contributor-name {
+            font-weight: 500;
+            color: #374151;
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+        
+        .contributor-item:hover .contributor-name {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        
+        .contributor-count {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+            margin-left: 6px;
+            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contributor-count::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .contributor-item:hover .contributor-count {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .contributor-item:hover .contributor-count::before {
+            opacity: 1;
+        }
+        
+        /* AI Insights Section */
+        .ai-insights-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .ai-insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ai-insight-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .insight-title {
+            color: #667eea;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+
+        .insight-content p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .ai-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ai-action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .ai-action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive - Compact Design */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .sidebar-title {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .content-area {
+                padding: 10px;
+            }
+            
+            .contributor-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                min-height: 70px;
+                padding: 8px;
+            }
+            
+            .stat-title {
+                font-size: 0.7rem;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .contributor-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 180px;
+                width: 180px;
+            }
+            
+            .legend-container {
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .legend-item {
+                font-size: 0.75rem;
+            }
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Escalation Hub</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/submit_form" class="nav-item">
+                <span class="nav-icon">✚</span>
+                New Escalation
+            </a>
+            <a href="/dashboard" class="nav-item">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="/statistics" class="nav-item active">
+                <span class="nav-icon">📈</span>
+                Statistics
+            </a>
+            <a href="/ai_summary" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                AI Summary
+            </a>
+            <a href="/custom_query" class="nav-item">
+                <span class="nav-icon">🔍</span>
+                Custom Query
+            </a>
+            <a href="/chasa_query" class="nav-item">
+                <span class="nav-icon">📊</span>
+                Chasa Query
+            </a>
+        </nav>
+        
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title">
+                <h1 class="page-title">Escalation Statistics</h1>
+            </div>
+            <div class="header-actions">
+                <!-- User Profile Dropdown -->
+                <div class="user-profile" id="userProfile">
+                    <div class="user-profile-button" onclick="toggleUserDropdown()">
+                        <div class="user-avatar">{{ session.webex_display_name[0] if session.webex_display_name else 'U' }}</div>
+                        <span class="user-name">{{ session.webex_display_name or 'User' }}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="/logout" class="dropdown-item" onclick="signOut()">Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Escalations</div>
+                    <div class="stat-number">{{ total_escalations }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Open Escalations</div>
+                    <div class="stat-number">{{ open_escalations }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Closed Escalations</div>
+                    <div class="stat-number">{{ closed_escalations }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Average MTTR</div>
+                    <div class="stat-number">{{ "%.1f"|format(average_mttr) }}</div>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- State Distribution Chart -->
+                <div class="chart-card">
+                    <h3 class="chart-title">Escalation Status Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="stateChart" class="chart-canvas"></canvas>
+                    </div>
+                    <div class="legend-container">
+                        <div class="legend-item" style="margin-left: 36%;"> 
+                            <div class="legend-color" style="background: #667eea;"></div>
+                            <span>Open</span>
+                        </div>
+                        <div class="legend-item" style="margin-left: 2%;">
+                            <div class="legend-color" style="background: #2ecc71;"></div>
+                            <span>Closed</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Closed Issues by Reason Chart -->
+                <div class="chart-card">
+                    <h3 class="chart-title">Closed Issues By Reason</h3>
+                    <div class="chart-container">
+                        <canvas id="closedIssuesChart" class="chart-canvas"></canvas>
+                    </div>
+                    <div class="legend-container">
+                        {% set colors = ['#f1c40f', '#3498db', '#9b59b6', '#27ae60', '#e74c3c', '#ff6b6b', '#4ecdc4', '#45b7d1'] %}
+                        {% for i in range(closing_reason_labels|length) %}
+                            {% set total = closing_reason_data|sum %}
+                            {% set percentage = ((closing_reason_data[i] / total * 100) if total > 0 else 0)|round(1) %}
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: {{ colors[i] }};"></div>
+                                <span>{{ closing_reason_labels[i] }}: {{ closing_reason_data[i] }} ({{ percentage }}%)</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contributor Analytics -->
+            <div class="contributor-section">
+                <h2 class="section-title">📊 Analytics</h2>
+                <div class="contributor-grid">
+                    <div class="contributor-card">
+                        <h4 class="contributor-title">🏆 Top 5 Engineers (Last Month)</h4>
+                        <ul class="contributor-list">
+                            {% if contributor_stats_1_month %}
+                                {% for contributor, count in contributor_stats_1_month %}
+                                <li class="contributor-item">
+                                    <span class="contributor-name">{{ contributor }}</span>
+                                    <span class="contributor-count">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="contributor-item">
+                                    <span class="contributor-name">No data available</span>
+                                    <span class="contributor-count">0</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    <div class="contributor-card">
+                        <h4 class="contributor-title">⭐ Top 5 Engineers (Last 3 Months)</h4>
+                        <ul class="contributor-list">
+                            {% if contributor_stats_3_months %}
+                                {% for contributor, count in contributor_stats_3_months %}
+                                <li class="contributor-item">
+                                    <span class="contributor-name">{{ contributor }}</span>
+                                    <span class="contributor-count">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="contributor-item">
+                                    <span class="contributor-name">No data available</span>
+                                    <span class="contributor-count">0</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        console.log('🔄 Loading Chart.js v3.9.1...');
+        
+        // Display charts immediately when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded, creating charts immediately...');
+            
+            // Create charts right away, no delay
+            if (typeof Chart !== 'undefined') {
+                console.log('✅ Chart.js v3.9.1 ready:', Chart.version);
+                createPieCharts();
+            } else {
+                // If Chart.js not ready, wait briefly and try once more
+                setTimeout(function() {
+                    if (typeof Chart !== 'undefined') {
+                        createPieCharts();
+                    } else {
+                        console.error('❌ Chart.js failed to load');
+                    }
+                }, 200);
+            }
+        });
+        
+        function createPieCharts() {
+            console.log('🎯 Creating pie charts without animations...');
+            
+            // Get real data from Flask backend
+            const openCount = {{ open_escalations }};
+            const closedCount = {{ closed_escalations }};
+            
+            console.log('Real escalation data - Open:', openCount, 'Closed:', closedCount);
+            
+            // Create State Distribution Chart
+            createStateChart(openCount, closedCount);
+            
+            // Create Closed Issues Chart
+            createClosedIssuesChart();
+        }
+        
+        function createStateChart(openCount, closedCount) {
+            const stateCtx = document.getElementById('stateChart');
+            if (!stateCtx) {
+                console.error('❌ State chart canvas not found');
+                return;
+            }
+            
+            console.log('✅ Creating state distribution chart...');
+            
+            // Destroy existing chart if any
+            if (Chart.getChart(stateCtx)) {
+                Chart.getChart(stateCtx).destroy();
+            }
+            
+            new Chart(stateCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Open', 'Closed'],
+                    datasets: [{
+                        data: [openCount, closedCount],
+                        backgroundColor: [
+                            '#667eea', // Blue for Open
+                            '#2ecc71'  // Green for Closed
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverBackgroundColor: [
+                            '#5a6fd8', // Darker blue on hover
+                            '#27ae60'  // Darker green on hover
+                        ],
+                        hoverBorderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1, // Force 1:1 ratio for perfect circle
+                    animation: false, // No animations
+                    plugins: {
+                        legend: {
+                            display: false // Using custom legend below
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = openCount + closedCount;
+                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            console.log('✅ State chart created successfully!');
+        }
+        
+        function createClosedIssuesChart() {
+            const closedCtx = document.getElementById('closedIssuesChart');
+            if (!closedCtx) {
+                console.error('❌ Closed issues chart canvas not found');
+                return;
+            }
+            
+            console.log('✅ Creating closed issues chart...');
+            
+            // Destroy existing chart if any
+            if (Chart.getChart(closedCtx)) {
+                Chart.getChart(closedCtx).destroy();
+            }
+            
+            // Get real closing reason data from backend
+            const closingData = {{ closing_reason_data|tojson }};
+            const closingLabels = {{ closing_reason_labels|tojson }};
+            
+            console.log('Closing reason data:', closingData, closingLabels);
+            
+            // Filter to show only non-zero values
+            const filteredData = [];
+            const filteredLabels = [];
+            const colors = ['#f1c40f', '#3498db', '#9b59b6', '#27ae60', '#e74c3c', '#ff6b6b', '#4ecdc4', '#95a5a6'];
+            const filteredColors = [];
+            
+            if (closingData && closingLabels) {
+                closingData.forEach((value, index) => {
+                    if (value > 0) {
+                        filteredData.push(value);
+                        filteredLabels.push(closingLabels[index]);
+                        filteredColors.push(colors[index % colors.length]);
+                    }
+                });
+            }
+            
+            // If no data, show sample data
+            if (filteredData.length === 0) {
+                const sampleData = [3, 0, 1, 0, 0, 0, 0, 2];
+                const sampleLabels = ['Bug', 'Network issue', 'Config issue', 'Infra issue', 'Serviceability issue', 'Location/AP/SDA', 'Routing', 'Documentation'];
+                
+                // Filter sample data to show only non-zero values
+                sampleData.forEach((value, index) => {
+                    if (value > 0) {
+                        filteredData.push(value);
+                        filteredLabels.push(sampleLabels[index]);
+                        filteredColors.push(colors[index % colors.length]);
+                    }
+                });
+            }
+            
+            new Chart(closedCtx, {
+                type: 'pie',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: filteredData,
+                        backgroundColor: filteredColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverBorderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1, // Force 1:1 ratio for perfect circle
+                    animation: false, // No animations
+                    plugins: {
+                        legend: {
+                            display: false // Using custom legend below
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = filteredData.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            console.log('✅ Closed issues chart created successfully!');
+        }
+
+    </script>
+    <script>
+        // Simple page initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Numbers already have correct values from backend
+            console.log('Statistics page loaded successfully');
+        });
+        
+        // User profile dropdown functions
+        function toggleUserDropdown() {
+            const userProfile = document.getElementById('userProfile');
+            userProfile.classList.toggle('active');
+        }
+        
+        function signOut() {
+            // Close dropdown
+            document.getElementById('userProfile').classList.remove('active');
+            
+            // Confirm sign out
+            if (confirm('Are you sure you want to sign out?')) {
+                // Redirect to logout
+                window.location.href = '/logout';
+            }
+        }
+        
+        // Test function removed - using real API calls now
+    </script>
+</body>
+</html>
